@@ -1,0 +1,99 @@
+Added Component: Designator=C1(CAPC0805(2012)145_L)
+Added Component: Designator=C2(CAPC0805(2012)145_L)
+Added Component: Designator=C3(CAPC0805(2012)145_L)
+Added Component: Designator=C4(CAPC0805(2012)145_L)
+Added Component: Designator=C5(CAPC0805(2012)145_L)
+Added Component: Designator=C6(CAPC1206(3216)190_L)
+Added Component: Designator=FB1(L0805 (2012))
+Added Component: Designator=IC1(SSOP-28_M)
+Added Component: Designator=LED1(LTST-C170GKT_V)
+Added Component: Designator=LED2(LTST-C170YKT_V)
+Added Component: Designator=LED3(LTST-C171AKT_V)
+Added Component: Designator=R1(RESC0805(2012)_L)
+Added Component: Designator=R2(RESC0805(2012)_L)
+Added Component: Designator=R3(RESC0805(2012)_L)
+Added Component: Designator=R4(RESC0805(2012)_M)
+Added Component: Designator=R5(RESC0805(2012)_M)
+Added Component: Designator=ST1(JST-S5B-EH)
+Added Component: Designator=ST2(ChipModul Feig C5)
+Added Component: Designator=ST3(ChipModul Feig C6)
+Added Component: Designator=T1(INTR-SOT-23-3_V)
+Added Pin To Net: NetName=+5 Pin=C1-2
+Added Pin To Net: NetName=+5 Pin=C2-2
+Added Pin To Net: NetName=+5 Pin=R1-2
+Added Pin To Net: NetName=+5 Pin=ST2-10
+Added Pin To Net: NetName=+5 Pin=ST3-5
+Added Pin To Net: NetName=+5 Pin=T1-3
+Added Net: Name=+5
+Added Pin To Net: NetName=3V3OUT Pin=C4-2
+Added Pin To Net: NetName=3V3OUT Pin=IC1-17
+Added Pin To Net: NetName=3V3OUT Pin=ST1-1
+Added Net: Name=3V3OUT
+Added Pin To Net: NetName=5V_USB Pin=C3-2
+Added Pin To Net: NetName=5V_USB Pin=FB1-1
+Added Pin To Net: NetName=5V_USB Pin=ST1-2
+Added Net: Name=5V_USB
+Added Pin To Net: NetName=5V VCC Pin=C5-2
+Added Pin To Net: NetName=5V VCC Pin=C6-2
+Added Pin To Net: NetName=5V VCC Pin=FB1-2
+Added Pin To Net: NetName=5V VCC Pin=IC1-4
+Added Pin To Net: NetName=5V VCC Pin=IC1-20
+Added Pin To Net: NetName=5V VCC Pin=R2-2
+Added Pin To Net: NetName=5V VCC Pin=R3-2
+Added Pin To Net: NetName=5V VCC Pin=R5-1
+Added Pin To Net: NetName=5V VCC Pin=T1-2
+Added Net: Name=5V VCC
+Added Pin To Net: NetName=GND Pin=C2-1
+Added Pin To Net: NetName=GND Pin=C3-1
+Added Pin To Net: NetName=GND Pin=C4-1
+Added Pin To Net: NetName=GND Pin=C5-1
+Added Pin To Net: NetName=GND Pin=C6-1
+Added Pin To Net: NetName=GND Pin=IC1-7
+Added Pin To Net: NetName=GND Pin=IC1-18
+Added Pin To Net: NetName=GND Pin=IC1-21
+Added Pin To Net: NetName=GND Pin=IC1-25
+Added Pin To Net: NetName=GND Pin=LED3-C
+Added Pin To Net: NetName=GND Pin=ST1-5
+Added Pin To Net: NetName=GND Pin=ST2-4
+Added Pin To Net: NetName=GND Pin=ST2-9
+Added Pin To Net: NetName=GND Pin=ST3-4
+Added Net: Name=GND
+Added Pin To Net: NetName=NetC1_1 Pin=C1-1
+Added Pin To Net: NetName=NetC1_1 Pin=R4-2
+Added Pin To Net: NetName=NetC1_1 Pin=T1-1
+Added Net: Name=NetC1_1
+Added Pin To Net: NetName=NetIC1_22 Pin=IC1-22
+Added Pin To Net: NetName=NetIC1_22 Pin=LED2-C
+Added Net: Name=NetIC1_22
+Added Pin To Net: NetName=NetIC1_23 Pin=IC1-23
+Added Pin To Net: NetName=NetIC1_23 Pin=LED1-C
+Added Net: Name=NetIC1_23
+Added Pin To Net: NetName=NetLED1_A Pin=LED1-A
+Added Pin To Net: NetName=NetLED1_A Pin=R2-1
+Added Net: Name=NetLED1_A
+Added Pin To Net: NetName=NetLED2_A Pin=LED2-A
+Added Pin To Net: NetName=NetLED2_A Pin=R3-1
+Added Net: Name=NetLED2_A
+Added Pin To Net: NetName=NetLED3_A Pin=LED3-A
+Added Pin To Net: NetName=NetLED3_A Pin=R1-1
+Added Net: Name=NetLED3_A
+Added Pin To Net: NetName=PWREN Pin=IC1-14
+Added Pin To Net: NetName=PWREN Pin=R4-1
+Added Pin To Net: NetName=PWREN Pin=R5-2
+Added Net: Name=PWREN
+Added Pin To Net: NetName=RXD Pin=IC1-5
+Added Pin To Net: NetName=RXD Pin=ST2-3
+Added Pin To Net: NetName=RXD Pin=ST3-2
+Added Net: Name=RXD
+Added Pin To Net: NetName=TXD Pin=IC1-1
+Added Pin To Net: NetName=TXD Pin=ST2-5
+Added Pin To Net: NetName=TXD Pin=ST3-3
+Added Net: Name=TXD
+Added Pin To Net: NetName=USB_N Pin=IC1-16
+Added Pin To Net: NetName=USB_N Pin=ST1-3
+Added Net: Name=USB_N
+Added Pin To Net: NetName=USB_P Pin=IC1-15
+Added Pin To Net: NetName=USB_P Pin=ST1-4
+Added Net: Name=USB_P
+Added Class: Name=USBWandler
+Added Differential Pair: Name=USB

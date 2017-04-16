@@ -1,0 +1,7 @@
+Added Component: Designator=ST2(ChipModul Feig C5)
+Added Pin To Net: NetName=RXD Pin=ST2-3
+Added Pin To Net: NetName=GND Pin=ST2-4
+Added Pin To Net: NetName=TXD Pin=ST2-5
+Added Pin To Net: NetName=5V Pin=ST2-8
+Added Pin To Net: NetName=GND Pin=ST2-9
+Added Member To Class: ClassName=USBWandler Member=Component ST2 Chipmodul Feig C5

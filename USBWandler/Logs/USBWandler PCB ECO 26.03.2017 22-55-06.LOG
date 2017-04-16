@@ -1,0 +1,6 @@
+Removed Pin From Net: NetName=RXD Pin=ST2-3
+Removed Pin From Net: NetName=GND Pin=ST2-4
+Removed Pin From Net: NetName=TXD Pin=ST2-5
+Removed Pin From Net: NetName=GND Pin=ST2-9
+Removed Pin From Net: NetName=+5 Pin=ST2-10
+Change Net Name : Old Net Name=+5 New Net Name=5V
