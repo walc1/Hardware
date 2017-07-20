@@ -1,2 +1,2 @@
 # Hardware
-Meine Hardare-Projekte
+Meine Hardware-Projekte
