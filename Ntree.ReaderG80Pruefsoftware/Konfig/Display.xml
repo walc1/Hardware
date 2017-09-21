@@ -1,0 +1,19 @@
+<Display>
+	<!-- 0 = 0°, 1 = 180°, 2 = 90°, 3 = 270° -->
+	<Orientation>0</Orientation>
+	<Logo>logo_300_115.png</Logo>
+	<LogoPosX>250</LogoPosX>
+	<LogoPosY>150</LogoPosY>
+	<BackColorR>0</BackColorR>
+	<BackColorG>0</BackColorG>
+	<BackColorB>0</BackColorB>
+	<ShowTime>True</ShowTime>
+	<!-- T = 12:00:00, t = 12:00  -->
+	<TimeFormat>T</TimeFormat>
+	<TimePosX>705</TimePosX>
+	<TimePosY>440</TimePosY>
+	<TimeSize>28</TimeSize>
+	<TimeColorR>255</TimeColorR>
+	<TimeColorG>255</TimeColorG>
+	<TimeColorB>255</TimeColorB>
+</Display>

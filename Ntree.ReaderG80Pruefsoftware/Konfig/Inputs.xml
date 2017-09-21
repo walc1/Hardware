@@ -1,0 +1,4 @@
+<Inputs>
+	<!-- 0 = RequestMode, 1 = InterruptMode -->
+	<Mode>0</Mode>
+</Inputs>

@@ -1,0 +1,9 @@
+<Server>
+	<!-- 0 = Serial, 1 = Ethernet -->
+	<PortType>1</PortType>
+	<ServerIpAddress>192.168.1.220</ServerIpAddress>
+	<IpAddress>192.168.1.164</IpAddress>
+	<SubnetMask>255.255.255.0</SubnetMask>
+	<Gateway>192.168.1.1</Gateway>
+	<NetworkPort>9999</NetworkPort>
+</Server>
