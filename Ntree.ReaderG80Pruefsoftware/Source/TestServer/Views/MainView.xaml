@@ -9,7 +9,7 @@
              d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
              d:DesignWidth="1200" d:DesignHeight="800">
     <DockPanel>
-        <GroupBox Header="Log" DockPanel.Dock="Bottom" Height="100">
+        <GroupBox Header="Log" DockPanel.Dock="Bottom" Height="300">
             <ScrollViewer>
                 <TextBlock VerticalAlignment="Top" TextWrapping="NoWrap" Text="{Binding LogText, Mode=OneWay}" DockPanel.Dock="Bottom"/>
             </ScrollViewer>
@@ -421,6 +421,20 @@
                             </GroupBox>
                         </StackPanel>
                     </TabItem>
+
+                    <TabItem Header="Auto Test">
+                        <StackPanel>
+                            <GroupBox  Header="Output/Input" IsEnabled="{Binding IsConnected}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="Auto_StartIOTest" Width="80">Start</Button>
+                                        <Button x:Name="Auto_StopIOTest" Width="80">Stop</Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </TabItem>
+                    
                 </TabControl>
             </Grid>
         </Grid>

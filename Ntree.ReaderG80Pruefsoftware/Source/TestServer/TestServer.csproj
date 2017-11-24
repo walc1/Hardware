@@ -97,6 +97,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AutoTest\AutoIOTest.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Connection\SerialConnection.cs" />
     <Compile Include="ColorHelper.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Converter\True2Visible.cs" />
     <Compile Include="Crc16.cs" />
     <Compile Include="ProtocolHelper.cs" />
+    <Compile Include="ProtocolManager.cs" />
     <Compile Include="ViewModels\ConnectionViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />

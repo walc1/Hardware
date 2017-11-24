@@ -16,6 +16,7 @@ namespace TestServer.Connection
         private Socket _socket;
         private Thread _readerTask;
         private readonly object _readLocker = new object();
+        private readonly object _lockSendReceive = new object();
 
         public UdpConnection(ILogger logger)
         {
@@ -48,7 +49,7 @@ namespace TestServer.Connection
 
         public byte[] SendReceive(byte[] data, int timoutMs = 1000)
         {
-            lock (_readLocker)
+            lock (_lockSendReceive)
             {
                 Send(data);
                 return TryReadTillEnd(timoutMs);

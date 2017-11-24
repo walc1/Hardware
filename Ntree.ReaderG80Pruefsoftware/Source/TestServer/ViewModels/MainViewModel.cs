@@ -17,12 +17,14 @@ using Caliburn.Micro;
 using Microsoft.Win32;
 using Shared;
 using Color = System.Windows.Media.Color;
+using TestServer.AutoTest;
 
 namespace TestServer.ViewModels
 {
-    class MainViewModel : Screen, IDisposable, ILogger
+    public class MainViewModel : Screen, IDisposable, ILogger
     {
         private IWindowManager _windowManager;
+        private ProtocolManager _protocolManager;
         private List<string> _logLines = new List<string>();
         private Protocol _protocol;
         private ProtocolHelper _protocolHelper;
@@ -44,6 +46,8 @@ namespace TestServer.ViewModels
         private string _i2CWriteReadResult;
         private string _spiResult;
 
+        private AutoIOTest _AutoIOTest;
+
         public MainViewModel()
         {
             _windowManager = new WindowManager();
@@ -64,6 +68,9 @@ namespace TestServer.ViewModels
             _protocolHelper = new ProtocolHelper(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8 });
 
             _connectionVm = new ConnectionViewModel(this);
+
+            _protocolManager = new ProtocolManager(_protocolHelper, _protocol, this);
+            _AutoIOTest = new AutoIOTest(_protocol, _protocolManager, this);
         }
 
         private void ShowConnectionView()
@@ -139,8 +146,19 @@ namespace TestServer.ViewModels
             }));
         }
 
-        public IConnection Connection { get; set; }
-        
+        private IConnection _Connection;
+
+        public IConnection Connection
+        {
+            get { return _Connection; }
+            set
+            {
+                _Connection = value;
+                _protocolManager.Connection = value;
+            }
+        }
+
+
         public bool[] RelaisStates { get; set; } = new bool[7];
 
         public double RelaisTime { get; set; } = 1;
@@ -776,64 +794,22 @@ namespace TestServer.ViewModels
 
         private void EncryptSendReceice(byte[] data)
         {
-            var enc = _protocolHelper.EncryptMessage(data);
-            var answer = Connection.SendReceive(enc);
-            if (answer != null)
-            {
-                var ack = _protocolHelper.DecryptData(answer);
-                var parseRes = _protocol.Parse(ack, out _index, out _resultData);
-                if (parseRes != ProtocolResult.Ack && parseRes != ProtocolResult.None)
-                {
-                    AddLog("SendReceive failed: " + parseRes);
-                    var nack = _protocol.CreateNack(parseRes);
-                    Connection.Send(_protocolHelper.EncryptMessage(nack));
-                }
-                else
-                {
-                    var cmd = _protocol.CreateAck();
-                    Connection.Send(_protocolHelper.EncryptMessage(cmd));
-                }
-            }
-            else
-            {
-                AddLog("No answer");
-            }
+            _protocolManager.EncryptSendReceice(data);
         }
 
         private ProtocolResult EncryptSendReceiveAck(byte[] msg)
         {
-            var enc = _protocolHelper.EncryptMessage(msg);
-            var ackEnc = Connection.SendReceive(enc);
-            if (ackEnc == null)
-            {
-                AddLog("No answer");
-                return ProtocolResult.Timeout;
-            }
-            try
-            {
-                var ack = _protocolHelper.DecryptData(ackEnc);
-                var result = _protocol.Parse(ack, out _index, out _resultData);
-                if (result != ProtocolResult.Ack && result != ProtocolResult.AckAck)
-                {
-                    AddLog("NAK: " + result);
-                }
-                return result;
-            }
-            catch (Exception e)
-            {
-                AddLog(e.ToString());
-                return ProtocolResult.UnknownError;
-            }
+            return _protocolManager.EncryptSendReceiveAck(msg);
         }
 
-        private void AddLog(string text)
+        public void AddLog(string text)
         {
             while (_logLines.Count > 500)
             {
-                _logLines.RemoveAt(0);
+                _logLines.RemoveAt(_logLines.Count - 1);
             }
 
-            _logLines.Add($"{DateTime.Now}: {text}");
+            _logLines.Insert(0, $"{DateTime.Now}: {text}");
 
             NotifyOfPropertyChange(nameof(LogText));
         }
@@ -887,6 +863,20 @@ namespace TestServer.ViewModels
         public void LogException(string text, Exception e)
         {
             AddLog("ERROR: " + text + "\n" + e);
+        }
+
+
+
+        // ********* Automatic Test *******
+       
+        public void Auto_StartIOTest()
+        {
+            _AutoIOTest.StartIOTest();
+        }
+
+        public void Auto_StopIOTest()
+        {
+            _AutoIOTest.StopIOTest();
         }
     }
 }
