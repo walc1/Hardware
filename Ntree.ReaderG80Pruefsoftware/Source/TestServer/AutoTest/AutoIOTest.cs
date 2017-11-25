@@ -13,9 +13,13 @@ namespace TestServer.AutoTest
         private ProtocolManager _ProtocolManager;
         private Protocol _protocol;
         private MainViewModel _ViewModel;
-        private bool _CancelIOTest = false;
 
-        System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+        private List<TestInstruction> _InstructionList = new List<TestInstruction>();
+        private int _InstructionIdx = 0;
+        private byte _OuputMask = 0;
+
+        private Thread _AutoIOTestTask;
+        private CancellationTokenSource _CancellationToken;
 
         public AutoIOTest(Protocol argProtocol, ProtocolManager argProtocolManager, MainViewModel argViewModel)
         {
@@ -23,146 +27,186 @@ namespace TestServer.AutoTest
             _ProtocolManager = argProtocolManager;
             _ViewModel = argViewModel;
 
-            dispatcherTimer.Tick += DispatcherTimer_Tick;
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 5);
-            dispatcherTimer.Stop();
+            InitTestList();
         }
 
-        private void DispatcherTimer_Tick(object sender, EventArgs e)
-        {
-            dispatcherTimer.Stop();
-            if (_CancelIOTest)
-            {
-                return;
-            }
-
-            RunIOTest();
-
-            if (_CancelIOTest)
-            {
-                return;
-            }
-            dispatcherTimer.Start();
-        }
 
         public void StartIOTest()
         {
-            RunIOTest();
-            //_CancelIOTest = false;
-            //dispatcherTimer.Start();
+            _CancellationToken = new CancellationTokenSource();
+            _InstructionIdx = 0;
+
+            _AutoIOTestTask = new Thread(() =>
+            {
+                ExecuteNextInstruction(_InstructionIdx);
+            });
+            _AutoIOTestTask.Start();                      
         }
 
         public void StopIOTest()
         {
-            _CancelIOTest = true;
+            _CancellationToken.Cancel();
+            _AutoIOTestTask.Join(1000);
         }
 
-        private bool RunIOTest()
+        private void InitTestList()
         {
-            Log("Start IO Test");
+            // reset output 
+            CreateTestInstruction(InstructionType.SetRelais, 1, false);
+            CreateTestInstruction(InstructionType.SetRelais, 2, false);
+            CreateTestInstruction(InstructionType.SetRelais, 3, false);
 
-            byte ouputMask = 0;
+            // wait 
+            CreateTestInstruction(InstructionType.TimeDelay, 1000);
 
-            // reset output 1-3
-            //SetOutputAndCheckInput(ref ouputMask, 1, false);
-            //SetOutputAndCheckInput(ref ouputMask, 2, false);
-            //SetOutputAndCheckInput(ref ouputMask, 3, false);
+            // check input
+            CreateTestInstruction(InstructionType.ReadInput, 1, false);
+            CreateTestInstruction(InstructionType.ReadInput, 2, false);
+            CreateTestInstruction(InstructionType.ReadInput, 3, false);
 
-            // set-reset output 1
-            SetOutputAndCheckInput(ref ouputMask, 1, true);
-            SetOutputAndCheckInput(ref ouputMask, 1, false);
+            // set output 1
+            CreateTestInstruction(InstructionType.SetRelais, 1, true);
 
-            // set-reset output 2
-            SetOutputAndCheckInput(ref ouputMask, 2, true);
-            SetOutputAndCheckInput(ref ouputMask, 2, false);
+            // wait 
+            CreateTestInstruction(InstructionType.TimeDelay, 1000);
 
-            // set-reset output 3
-            SetOutputAndCheckInput(ref ouputMask, 3, true);
-            SetOutputAndCheckInput(ref ouputMask, 3, false);
+            // check input
+            CreateTestInstruction(InstructionType.ReadInput, 1, true);
+            CreateTestInstruction(InstructionType.ReadInput, 1, false);
+            CreateTestInstruction(InstructionType.ReadInput, 1, false);
 
-            // set output 1-3
-            SetOutputAndCheckInput(ref ouputMask, 1, true);
-            SetOutputAndCheckInput(ref ouputMask, 2, true);
-            SetOutputAndCheckInput(ref ouputMask, 3, true);
+            // set output 2
+            CreateTestInstruction(InstructionType.SetRelais, 2, true);
 
-            // reset output 1-3
-            SetOutputAndCheckInput(ref ouputMask, 1, false);
-            SetOutputAndCheckInput(ref ouputMask, 2, false);
-            SetOutputAndCheckInput(ref ouputMask, 3, false);
+            // wait 
+            CreateTestInstruction(InstructionType.TimeDelay, 1000);
 
-            return true;
+            // check input
+            CreateTestInstruction(InstructionType.ReadInput, 1, true);
+            CreateTestInstruction(InstructionType.ReadInput, 2, true);
+            CreateTestInstruction(InstructionType.ReadInput, 3, false);
+
+            // set output 3
+            CreateTestInstruction(InstructionType.SetRelais, 3, true);
+
+            // wait 
+            CreateTestInstruction(InstructionType.TimeDelay, 1000);
+
+            // check input
+            CreateTestInstruction(InstructionType.ReadInput, 1, true);
+            CreateTestInstruction(InstructionType.ReadInput, 2, true);
+            CreateTestInstruction(InstructionType.ReadInput, 3, true);
         }
 
-        private bool SetOutputAndCheckInput(ref byte argMask, byte argRelaisNr, bool argValue)
+        private void ExecuteNextInstruction(int argInstructionIdx)
+        {
+            if (_CancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
+            var instruction = _InstructionList[argInstructionIdx];
+            switch (instruction.Command)
+            {
+                case InstructionType.SetRelais:
+                    ExecuteSetRelais(instruction);
+                    break;
+                case InstructionType.ReadInput:
+                    ExecuteReadInput(instruction);
+                    break;
+                case InstructionType.TimeDelay:
+                    ExecuteTimeDelay(instruction);
+                    break;
+                default:
+                    break;
+            }
+
+            if (instruction.Command != InstructionType.TimeDelay)
+            {
+                ExecuteNextStep();
+            }
+        }
+
+        private void ExecuteSetRelais(TestInstruction argInstruction)
         {
             // set output
-            Log($"Set output {argRelaisNr} to {argValue}.");
-            var result = SendRelais(ref argMask, argRelaisNr, argValue);
+            Log($"Set output {argInstruction.Index} to {argInstruction.Value}.");
+            var result = SendRelais(ref _OuputMask, argInstruction.Index, argInstruction.Value);
             Log($"Result: {result}");
+        }
 
-            // wait for input
-            Log($"Wait for input {argRelaisNr}");
-            var counter = 0;
-            var maxCycle = 100;
+        private void ExecuteReadInput(TestInstruction argInstruction)
+        {
+            // read input
+            Log($"Read input {argInstruction.Index}. Expected value {argInstruction.Value}.");
 
-            switch (argRelaisNr)
+            switch (argInstruction.Index)
             {
                 case 1:
-                    while (_ViewModel.InputState1 != argValue)
+                    if (_ViewModel.InputState1 != argInstruction.Value)
                     {
-                        if (counter >= maxCycle)
-                        {
-                            Log("Error - Timeout elapsed");
-                            return false;
-                        }
-                        counter++;
-                        Thread.Sleep(10);
+                        Log($"Error - Input value {_ViewModel.InputState1}. Expected {argInstruction.Value}.");
                     }
                     break;
                 case 2:
-                    while (_ViewModel.InputState2 != argValue)
+                    if (_ViewModel.InputState2 != argInstruction.Value)
                     {
-                        if (counter >= maxCycle)
-                        {
-                            Log("Error - Timeout elapsed");
-                            return false;
-                        }
-                        counter++;
-                        Thread.Sleep(10);
+                        Log($"Error - Input value {_ViewModel.InputState2}. Expected {argInstruction.Value}.");
                     }
                     break;
                 case 3:
-                    while (_ViewModel.InputState3 != argValue)
+                    if (_ViewModel.InputState3 != argInstruction.Value)
                     {
-                        if (counter >= maxCycle)
-                        {
-                            Log("Error - Timeout elapsed");
-                            return false;
-                        }
-                        counter++;
-                        Thread.Sleep(10);
+                        Log($"Error - Input value {_ViewModel.InputState3}. Expected {argInstruction.Value}.");
                     }
                     break;
                 case 4:
-                    while (_ViewModel.InputState4 != argValue)
+                    if (_ViewModel.InputState4 != argInstruction.Value)
                     {
-                        if (counter >= maxCycle)
-                        {
-                            Log("Error - Timeout elapsed");
-                            return false;
-                        }
-                        counter++;
-                        Thread.Sleep(10);
+                        Log($"Error - Input value {_ViewModel.InputState4}. Expected {argInstruction.Value}.");
                     }
                     break;
                 default:
-                    Log($"Error - SetOutputAndCheckInput for {argRelaisNr} not supported.");
-                    return false;
+                    Log($"Error - ExecuteReadInput for index {argInstruction.Index} not supported.");
+                    break;
+            }
+        }
+
+        private void ExecuteTimeDelay(TestInstruction argInstruction)
+        {
+            Thread.Sleep(argInstruction.TimeDelayMs);
+            ExecuteNextStep();
+        }
+
+        private void ExecuteNextStep()
+        {
+            Thread.Sleep(100);
+            _InstructionIdx++;
+            if (_InstructionIdx > _InstructionList.Count - 1)
+            {
+                _InstructionIdx = 0;
             }
 
-            Log($"Input was set after {counter} ms.");
+            ExecuteNextInstruction(_InstructionIdx);
+        }
 
-            return true;
+        private void CreateTestInstruction(InstructionType argCmd, byte argIndex, bool argValue)
+        {
+            TestInstruction instruction = new TestInstruction();
+            instruction.Command = argCmd;
+            instruction.Index = argIndex;
+            instruction.Value = argValue;
+
+            _InstructionList.Add(instruction);
+        }
+
+        private void CreateTestInstruction(InstructionType argCmd, int argTimeDelayMS)
+        {
+            TestInstruction instruction = new TestInstruction();
+            instruction.Command = argCmd;
+            instruction.TimeDelayMs = argTimeDelayMS;
+
+            _InstructionList.Add(instruction);
         }
 
         private ProtocolResult SendRelais(ref byte argMask, byte argRelaisNr, bool argValue)

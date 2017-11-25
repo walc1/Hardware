@@ -12,7 +12,6 @@ namespace TestServer.Connection
         private SerialPort _port;
         private readonly List<byte> _recBuffer = new List<byte>();
         private readonly object _locker = new object();
-        private readonly object _lockerSendReceive = new object();
         private Thread _readWorker;
         private CancellationTokenSource _cancellation;
         private int _baudrate;
@@ -74,7 +73,7 @@ namespace TestServer.Connection
 
         public byte[] SendReceive(byte[] data, int timoutMs = 1000)
         {
-            lock (_lockerSendReceive)
+            lock (_locker)
             {
                 var sw = Stopwatch.StartNew();
                 _port.Write(data, 0, data.Length);

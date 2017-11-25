@@ -98,6 +98,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AutoTest\AutoIOTest.cs" />
+    <Compile Include="AutoTest\TestInstruction.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Connection\SerialConnection.cs" />
     <Compile Include="ColorHelper.cs" />

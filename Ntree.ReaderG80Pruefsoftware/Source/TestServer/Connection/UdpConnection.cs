@@ -11,12 +11,11 @@ namespace TestServer.Connection
     {
         private CancellationTokenSource _cancellationToken;
         private readonly ILogger _logger;
-        private EndPoint _serverEndpoint;
+        private EndPoint _terminalEndpoint;
         private EndPoint _listenerEndPoint;
         private Socket _socket;
         private Thread _readerTask;
         private readonly object _readLocker = new object();
-        private readonly object _lockSendReceive = new object();
 
         public UdpConnection(ILogger logger)
         {
@@ -37,7 +36,7 @@ namespace TestServer.Connection
         {
             try
             {
-                _socket.SendTo(data, _serverEndpoint);
+                _socket.SendTo(data, _terminalEndpoint);
                 return true;
             }
             catch (Exception e)
@@ -49,7 +48,7 @@ namespace TestServer.Connection
 
         public byte[] SendReceive(byte[] data, int timoutMs = 1000)
         {
-            lock (_lockSendReceive)
+            lock (_readLocker)
             {
                 Send(data);
                 return TryReadTillEnd(timoutMs);
@@ -61,7 +60,7 @@ namespace TestServer.Connection
             try
             {
                 _cancellationToken = new CancellationTokenSource();
-                _serverEndpoint = new IPEndPoint(IPAddress.Parse(TerminalIp), Port);
+                _terminalEndpoint = new IPEndPoint(IPAddress.Parse(TerminalIp), Port);
                 _listenerEndPoint = new IPEndPoint(IPAddress.Any, Port);
 
                 _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -71,14 +70,16 @@ namespace TestServer.Connection
                 {
                     while (!_cancellationToken.IsCancellationRequested)
                     {
+                        byte[] data;
+
                         lock (_readLocker)
                         {
-                            var data = TryReadTillEnd(1);
-                            if (data != null)
-                            {
-                                MessageReceived?.Invoke(this, data);
-                            }
+                            data = TryReadTillEnd(1);
+                        }
 
+                        if (data != null)
+                        {
+                            MessageReceived?.Invoke(this, data);
                         }
                     }
                 });
@@ -104,24 +105,34 @@ namespace TestServer.Connection
 
         private byte[] TryReadTillEnd(int timeout)
         {
-            var end = DateTime.Now.AddMilliseconds(timeout);
-            while (DateTime.Now < end)
+            try
             {
-                if (_socket.Available > 0)
+                var end = DateTime.Now.AddMilliseconds(timeout);
+                while (DateTime.Now < end)
                 {
-                    byte[] inBuf = new byte[_socket.Available];
-                    EndPoint recEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                    _socket.ReceiveFrom(inBuf, ref recEndPoint);
-                    if (inBuf.Last() == Protocol.END)
+                    if (_socket.Available > 0)
                     {
-                        return inBuf;
+                        byte[] inBuf = new byte[_socket.Available];
+                        // Note: Dies müsste das Terminal sein von dem die Message kommt, oder?
+                        EndPoint recEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                        _socket.ReceiveFrom(inBuf, ref recEndPoint);
+                        if (inBuf.Last() == Protocol.END)
+                        {
+                            return inBuf;
+                        }
+                    }
+                    else
+                    {
+                        Thread.Sleep(10);
                     }
                 }
-                else
-                {
-                    Thread.Sleep(10);
-                }
             }
+            catch (Exception e)
+            {
+                _logger.LogException("TryReadTillEnd failed", e);
+                return null;
+            }
+
             return null;
         }
     }

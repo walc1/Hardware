@@ -46,7 +46,7 @@ namespace TestServer.ViewModels
         private string _i2CWriteReadResult;
         private string _spiResult;
 
-        private AutoIOTest _AutoIOTest;
+        private AutoIOTest _AutoIOTest;        
 
         public MainViewModel()
         {
