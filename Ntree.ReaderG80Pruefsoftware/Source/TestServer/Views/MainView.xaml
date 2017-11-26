@@ -9,22 +9,23 @@
              d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
              d:DesignWidth="1200" d:DesignHeight="800">
     <DockPanel>
-        <GroupBox Header="Log" DockPanel.Dock="Bottom" Height="300">
+        <!--<GroupBox Header="Log" DockPanel.Dock="Bottom" MinHeight="200">
             <ScrollViewer>
                 <TextBlock VerticalAlignment="Top" TextWrapping="NoWrap" Text="{Binding LogText, Mode=OneWay}" DockPanel.Dock="Bottom"/>
             </ScrollViewer>
-        </GroupBox>
+        </GroupBox>-->
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Grid>
+            <Grid >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <GroupBox Header="Connection">
                     <StackPanel>
@@ -131,7 +132,11 @@
                     </Grid>
 
                 </GroupBox>
-
+                <GroupBox Grid.Row="4" Header="Log" Height="200">
+                    <ScrollViewer>
+                        <TextBlock VerticalAlignment="Top" TextWrapping="NoWrap" Text="{Binding LogText, Mode=OneWay}" DockPanel.Dock="Bottom"/>
+                    </ScrollViewer>
+                </GroupBox>
             </Grid>
             <Grid Grid.Column="1" IsEnabled="{Binding IsConnected}">
                 <TabControl Background="Transparent" Margin="3">
@@ -141,8 +146,8 @@
                                 <GroupBox Header="Text">
                                     <Grid>
                                         <Grid.RowDefinitions>
-                                            <RowDefinition />
-                                            <RowDefinition />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
@@ -431,6 +436,11 @@
                                         <Button x:Name="Auto_StopIOTest" Width="80">Stop</Button>
                                     </StackPanel>
                                 </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="Error Log" Height="200">
+                                <ScrollViewer>
+                                    <TextBlock VerticalAlignment="Top" TextWrapping="NoWrap" Foreground="Red" Text="{Binding ErrorLogText, Mode=OneWay}"/>
+                                </ScrollViewer>
                             </GroupBox>
                         </StackPanel>
                     </TabItem>

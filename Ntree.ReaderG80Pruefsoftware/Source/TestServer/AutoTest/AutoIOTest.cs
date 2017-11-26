@@ -132,7 +132,17 @@ namespace TestServer.AutoTest
             // set output
             Log($"Set output {argInstruction.Index} to {argInstruction.Value}.");
             var result = SendRelais(ref _OuputMask, argInstruction.Index, argInstruction.Value);
+
             Log($"Result: {result}");
+
+            if (result != ProtocolResult.Ack && result != ProtocolResult.AckAck)
+            {
+                LogError($"Result: {result}");
+            }
+            else
+            {
+                Log($"Result: {result}");
+            }
         }
 
         private void ExecuteReadInput(TestInstruction argInstruction)
@@ -145,29 +155,29 @@ namespace TestServer.AutoTest
                 case 1:
                     if (_ViewModel.InputState1 != argInstruction.Value)
                     {
-                        Log($"Error - Input value {_ViewModel.InputState1}. Expected {argInstruction.Value}.");
+                        LogError($"Error - Input value {_ViewModel.InputState1}. Expected {argInstruction.Value}.");
                     }
                     break;
                 case 2:
                     if (_ViewModel.InputState2 != argInstruction.Value)
                     {
-                        Log($"Error - Input value {_ViewModel.InputState2}. Expected {argInstruction.Value}.");
+                        LogError($"Error - Input value {_ViewModel.InputState2}. Expected {argInstruction.Value}.");
                     }
                     break;
                 case 3:
                     if (_ViewModel.InputState3 != argInstruction.Value)
                     {
-                        Log($"Error - Input value {_ViewModel.InputState3}. Expected {argInstruction.Value}.");
+                        LogError($"Error - Input value {_ViewModel.InputState3}. Expected {argInstruction.Value}.");
                     }
                     break;
                 case 4:
                     if (_ViewModel.InputState4 != argInstruction.Value)
                     {
-                        Log($"Error - Input value {_ViewModel.InputState4}. Expected {argInstruction.Value}.");
+                        LogError($"Error - Input value {_ViewModel.InputState4}. Expected {argInstruction.Value}.");
                     }
                     break;
                 default:
-                    Log($"Error - ExecuteReadInput for index {argInstruction.Index} not supported.");
+                    LogError($"Error - ExecuteReadInput for index {argInstruction.Index} not supported.");
                     break;
             }
         }
@@ -214,7 +224,7 @@ namespace TestServer.AutoTest
             // allow only Relais 1-4
             if (argRelaisNr < 1 || argRelaisNr > 4)
             {
-                Log($"SendRelais invalid nr {argRelaisNr}");
+                LogError($"SendRelais invalid nr {argRelaisNr}");
                 return ProtocolResult.UnknownError;
             }
 
@@ -240,6 +250,11 @@ namespace TestServer.AutoTest
         private void Log(string argMessage)
         {
             _ViewModel.AddLog(argMessage);
+        }
+
+        private void LogError(string argMessage)
+        {
+            _ViewModel.AddErrorLog(argMessage);
         }
     }
 }

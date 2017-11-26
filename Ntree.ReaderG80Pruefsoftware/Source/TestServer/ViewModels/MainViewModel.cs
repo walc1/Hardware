@@ -26,6 +26,7 @@ namespace TestServer.ViewModels
         private IWindowManager _windowManager;
         private ProtocolManager _protocolManager;
         private List<string> _logLines = new List<string>();
+        private List<string> _errorLogLines = new List<string>();
         private Protocol _protocol;
         private ProtocolHelper _protocolHelper;
         private string _terminalTime;
@@ -62,7 +63,8 @@ namespace TestServer.ViewModels
             _protocol.FileListChanged += OnFileListChanged;
             _protocol.TouchButton += OnTouchButton;
             _protocol.SystemInfoChanged += OnSystemInfoChanged;
-            _protocol.MediaRead += (sender, id, data) => ReadMedia = $"Id: {id} -> Card: {Encoding.UTF8.GetString(data)}";
+            //_protocol.MediaRead += (sender, id, data) => ReadMedia = $"Id: {id} -> Card: {Encoding.UTF8.GetString(data)}";
+            _protocol.MediaRead += _protocol_MediaRead;
 
             TerminalTime = "--:--:--";
             _protocolHelper = new ProtocolHelper(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8 });
@@ -71,6 +73,28 @@ namespace TestServer.ViewModels
 
             _protocolManager = new ProtocolManager(_protocolHelper, _protocol, this);
             _AutoIOTest = new AutoIOTest(_protocol, _protocolManager, this);
+        }
+
+        private void _protocol_MediaRead(object sender, byte readerId, byte[] cardData)
+        {
+            ReadMedia = $"Id: {readerId} -> Card: {Encoding.UTF8.GetString(cardData)}";
+
+            if (readerId == 1)
+            {
+                ReadMedia1 = Encoding.UTF8.GetString(cardData);
+            }
+            else if (readerId == 2)
+            {
+                ReadMedia2 = Encoding.UTF8.GetString(cardData);
+            }
+            else if (readerId == 3)
+            {
+                ReadMedia3 = Encoding.UTF8.GetString(cardData);
+            }
+            else
+            {
+                AddErrorLog($"Error - invalid readerId {readerId}");
+            }
         }
 
         private void ShowConnectionView()
@@ -225,6 +249,8 @@ namespace TestServer.ViewModels
 
         public string LogText => string.Join("\n", _logLines);
 
+        public string ErrorLogText => string.Join("\n", _errorLogLines);
+
         public double BeeperTime { get; set; } = 1;
 
         public string TerminalTime
@@ -311,6 +337,42 @@ namespace TestServer.ViewModels
                 if (value == _readMedia) return;
                 _readMedia = value.TrimEnd('\n', '\r');
                 NotifyOfPropertyChange(nameof(ReadMedia));
+            }
+        }
+
+        private string _readMedia1;
+        public string ReadMedia1
+        {
+            get { return _readMedia1; }
+            private set
+            {
+                if (value == _readMedia1) return;
+                _readMedia1 = value.TrimEnd('\n', '\r');
+                NotifyOfPropertyChange(nameof(ReadMedia1));
+            }
+        }
+
+        private string _readMedia2;
+        public string ReadMedia2
+        {
+            get { return _readMedia2; }
+            private set
+            {
+                if (value == _readMedia2) return;
+                _readMedia2 = value.TrimEnd('\n', '\r');
+                NotifyOfPropertyChange(nameof(ReadMedia2));
+            }
+        }
+
+        private string _readMedia3;
+        public string ReadMedia3
+        {
+            get { return _readMedia3; }
+            private set
+            {
+                if (value == _readMedia3) return;
+                _readMedia3 = value.TrimEnd('\n', '\r');
+                NotifyOfPropertyChange(nameof(ReadMedia3));
             }
         }
 
@@ -809,9 +871,23 @@ namespace TestServer.ViewModels
                 _logLines.RemoveAt(_logLines.Count - 1);
             }
 
-            _logLines.Insert(0, $"{DateTime.Now}: {text}");
+            _logLines.Insert(0, $"{DateTime.Now}: {text}");            
 
             NotifyOfPropertyChange(nameof(LogText));
+        }
+
+        public void AddErrorLog(string text)
+        {
+            AddLog(text);
+
+            while (_errorLogLines.Count > 500)
+            {
+                _logLines.RemoveAt(_errorLogLines.Count - 1);
+            }
+
+            _errorLogLines.Insert(0, $"{DateTime.Now}: {text}");
+
+            NotifyOfPropertyChange(nameof(ErrorLogText));
         }
 
 
