@@ -47,7 +47,8 @@ namespace TestServer.ViewModels
         private string _i2CWriteReadResult;
         private string _spiResult;
 
-        private AutoIOTest _AutoIOTest;        
+        private AutoIOTest _AutoIOTest;
+        private AutoReaderTest _AutoReaderTest;
 
         public MainViewModel()
         {
@@ -73,6 +74,7 @@ namespace TestServer.ViewModels
 
             _protocolManager = new ProtocolManager(_protocolHelper, _protocol, this);
             _AutoIOTest = new AutoIOTest(_protocol, _protocolManager, this);
+            _AutoReaderTest = new AutoReaderTest(_protocol, _protocolManager, this);
         }
 
         private void _protocol_MediaRead(object sender, byte readerId, byte[] cardData)
@@ -953,6 +955,31 @@ namespace TestServer.ViewModels
         public void Auto_StopIOTest()
         {
             _AutoIOTest.StopIOTest();
+        }
+        public IEnumerable<string> AutoTest_ComPorts => SerialPort.GetPortNames();
+
+        public string AutoTest_ComPortReader1 { get; set; }
+
+        private string _Auto_BarcodeToWrite;
+        public string Auto_BarcodeToWrite
+        {
+            get { return _Auto_BarcodeToWrite; }
+            set
+            {
+                if (value == _Auto_BarcodeToWrite) return;
+                _Auto_BarcodeToWrite = value;
+                NotifyOfPropertyChange(nameof(Auto_BarcodeToWrite));
+            }
+        }
+
+        public void Auto_StartWriteToReader1()
+        {
+            _AutoReaderTest.StartTest(AutoTest_ComPortReader1);
+        }
+
+        public void Auto_StopWriteToReader1()
+        {
+            _AutoReaderTest.StopTest();
         }
     }
 }

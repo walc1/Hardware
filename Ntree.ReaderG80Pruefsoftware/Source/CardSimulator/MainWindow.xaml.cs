@@ -42,7 +42,7 @@ namespace CardSimulator
         {
             if (!IsConnected)
             {
-                _serial = new SerialPort(ComPort, 9600);
+                _serial = new SerialPort(ComPort, 19200); // 9600
                 _serial.Open();
                 _serial.DiscardInBuffer();
                 _serial.DataReceived += SerialOnDataReceived;
@@ -125,6 +125,7 @@ namespace CardSimulator
             {
                 var data = $"#>{bt.Content}<#";
                 _serial.Write(data);
+
             }
         }
     }

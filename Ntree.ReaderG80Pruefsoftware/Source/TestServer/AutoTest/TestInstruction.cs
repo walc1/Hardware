@@ -9,7 +9,9 @@ namespace TestServer.AutoTest
     {
         SetRelais,
         ReadInput,
-        TimeDelay
+        TimeDelay, 
+        WriteBarcode,
+        ReadBarcode
     }
 
     public class TestInstruction
@@ -21,6 +23,8 @@ namespace TestServer.AutoTest
         public byte Index { get; set; }
 
         public int TimeDelayMs { get; set; }
+
+        public string Barcode { get; set; }
 
     }
 }

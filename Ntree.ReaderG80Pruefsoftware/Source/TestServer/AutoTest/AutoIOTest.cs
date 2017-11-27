@@ -72,8 +72,8 @@ namespace TestServer.AutoTest
 
             // check input
             CreateTestInstruction(InstructionType.ReadInput, 1, true);
-            CreateTestInstruction(InstructionType.ReadInput, 1, false);
-            CreateTestInstruction(InstructionType.ReadInput, 1, false);
+            CreateTestInstruction(InstructionType.ReadInput, 2, false);
+            CreateTestInstruction(InstructionType.ReadInput, 3, false);
 
             // set output 2
             CreateTestInstruction(InstructionType.SetRelais, 2, true);
@@ -132,8 +132,6 @@ namespace TestServer.AutoTest
             // set output
             Log($"Set output {argInstruction.Index} to {argInstruction.Value}.");
             var result = SendRelais(ref _OuputMask, argInstruction.Index, argInstruction.Value);
-
-            Log($"Result: {result}");
 
             if (result != ProtocolResult.Ack && result != ProtocolResult.AckAck)
             {

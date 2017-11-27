@@ -437,6 +437,18 @@
                                     </StackPanel>
                                 </StackPanel>
                             </GroupBox>
+
+                            <GroupBox Header="Reader 1 Simulation" IsEnabled="{Binding IsConnected}">
+                                <StackPanel>
+                                    <ComboBox ItemsSource="{Binding AutoTest_ComPorts}" SelectedItem="{Binding AutoTest_ComPortReader1}" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="Auto_StartWriteToReader1" Width="80">Start</Button>
+                                        <Button x:Name="Auto_StopWriteToReader1" Width="80">Stop</Button>
+                                        <TextBox Text="{Binding Auto_BarcodeToWrite}" MinWidth="250"></TextBox>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                            
                             <GroupBox Header="Error Log" Height="200">
                                 <ScrollViewer>
                                     <TextBlock VerticalAlignment="Top" TextWrapping="NoWrap" Foreground="Red" Text="{Binding ErrorLogText, Mode=OneWay}"/>
