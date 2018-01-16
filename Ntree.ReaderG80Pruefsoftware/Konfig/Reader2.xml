@@ -1,8 +1,8 @@
 <Reader>
 	<!-- 0 = Request, 1 = Auto, 2 = Redirect -->
-	<Mode>1</Mode>
-	<PortName>COM2</PortName>
-	<Baudrate>19200</Baudrate>
+	<Mode>2</Mode>
+	<PortName>COM4</PortName>
+	<Baudrate>9600</Baudrate>
 	<Parity>0</Parity>
 	<StopBits>1</StopBits>
 	<Databits>8</Databits>

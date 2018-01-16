@@ -18,15 +18,24 @@ using Microsoft.Win32;
 using Shared;
 using Color = System.Windows.Media.Color;
 using TestServer.AutoTest;
+using System.Text.RegularExpressions;
+using System.Windows.Data;
 
 namespace TestServer.ViewModels
 {
+
+    public class LogItem
+    {
+        public string Message { get; set; }
+    }
+
     public class MainViewModel : Screen, IDisposable, ILogger
     {
         private IWindowManager _windowManager;
         private ProtocolManager _protocolManager;
         private List<string> _logLines = new List<string>();
         private List<string> _errorLogLines = new List<string>();
+
         private Protocol _protocol;
         private ProtocolHelper _protocolHelper;
         private string _terminalTime;
@@ -40,6 +49,7 @@ namespace TestServer.ViewModels
         private string _imageFile;
         private string _terminalVersion = "-.-.-.-";
         private string _readMedia = "---";
+        private string _readMediaRaw = "---";
         private ConnectionViewModel _connectionVm;
         private string _terminalMacAddress = "xx-xx-xx-xx-xx-xx";
         private byte _backlightValue = 127;
@@ -49,6 +59,7 @@ namespace TestServer.ViewModels
 
         private AutoIOTest _AutoIOTest;
         private AutoReaderTest _AutoReaderTest;
+        private AutoCompleteTest _AutoCompleteTest;
 
         public MainViewModel()
         {
@@ -75,23 +86,38 @@ namespace TestServer.ViewModels
             _protocolManager = new ProtocolManager(_protocolHelper, _protocol, this);
             _AutoIOTest = new AutoIOTest(_protocol, _protocolManager, this);
             _AutoReaderTest = new AutoReaderTest(_protocol, _protocolManager, this);
+            _AutoCompleteTest = new AutoCompleteTest(_protocol, _protocolManager, this);
         }
 
         private void _protocol_MediaRead(object sender, byte readerId, byte[] cardData)
         {
-            ReadMedia = $"Id: {readerId} -> Card: {Encoding.UTF8.GetString(cardData)}";
+            // Validate data
+            var regexItem = new Regex("^[a-fA-F0-9]+$");
+            var dataAsString = Encoding.UTF8.GetString(cardData);
+            dataAsString = dataAsString.Trim('\r', '\n', '\0');
+
+            // ToDo: Check length
+
+            if (!regexItem.IsMatch(dataAsString))
+            {
+                LogError($"Invalid data {dataAsString} for reader id {readerId}");
+                return;
+            }
+
+            ReadMedia = $"Id: {readerId} -> Card: {dataAsString}";
+            ReadMediaRaw = dataAsString;
 
             if (readerId == 1)
             {
-                ReadMedia1 = Encoding.UTF8.GetString(cardData);
+                ReadMedia1 = dataAsString;
             }
             else if (readerId == 2)
             {
-                ReadMedia2 = Encoding.UTF8.GetString(cardData);
+                ReadMedia2 = dataAsString;
             }
             else if (readerId == 3)
             {
-                ReadMedia3 = Encoding.UTF8.GetString(cardData);
+                ReadMedia3 = dataAsString;
             }
             else
             {
@@ -249,9 +275,31 @@ namespace TestServer.ViewModels
             NotifyOfPropertyChange(nameof(IsConnected));
         }
 
-        public string LogText => string.Join("\n", _logLines);
+        public string LogText
+        {
+            get
+            {
+                string result = "";
+                foreach (var item in _logLines)
+                {
+                    result += item;
+                }
+                return result;
+            }
+        }
 
-        public string ErrorLogText => string.Join("\n", _errorLogLines);
+        public string ErrorLogText
+        {
+            get
+            {
+                string result = "";
+                foreach (var item in _errorLogLines)
+                {
+                    result += item;
+                }
+                return result;
+            }
+        }
 
         public double BeeperTime { get; set; } = 1;
 
@@ -337,8 +385,19 @@ namespace TestServer.ViewModels
             private set
             {
                 if (value == _readMedia) return;
-                _readMedia = value.TrimEnd('\n', '\r');
+                _readMedia = value; //.TrimEnd('\n', '\r');
                 NotifyOfPropertyChange(nameof(ReadMedia));
+            }
+        }
+
+        public string ReadMediaRaw
+        {
+            get { return _readMediaRaw; }
+            set
+            {
+                if (value == _readMediaRaw) return;
+                _readMediaRaw = value; //.TrimEnd('\n', '\r');
+                NotifyOfPropertyChange(nameof(ReadMediaRaw));
             }
         }
 
@@ -348,8 +407,9 @@ namespace TestServer.ViewModels
             get { return _readMedia1; }
             private set
             {
-                if (value == _readMedia1) return;
-                _readMedia1 = value.TrimEnd('\n', '\r');
+                if (value == _readMedia1) return;             
+                _readMedia1 = value; //.TrimEnd('\n', '\r');                
+                _AutoReaderTest.CheckReaderMedia1(_readMedia1);
                 NotifyOfPropertyChange(nameof(ReadMedia1));
             }
         }
@@ -361,7 +421,8 @@ namespace TestServer.ViewModels
             private set
             {
                 if (value == _readMedia2) return;
-                _readMedia2 = value.TrimEnd('\n', '\r');
+                _readMedia2 = value; //.TrimEnd('\n', '\r');
+                _AutoReaderTest.CheckReaderMedia2(_readMedia2);
                 NotifyOfPropertyChange(nameof(ReadMedia2));
             }
         }
@@ -373,7 +434,7 @@ namespace TestServer.ViewModels
             private set
             {
                 if (value == _readMedia3) return;
-                _readMedia3 = value.TrimEnd('\n', '\r');
+                _readMedia3 = value; //.TrimEnd('\n', '\r');
                 NotifyOfPropertyChange(nameof(ReadMedia3));
             }
         }
@@ -866,30 +927,38 @@ namespace TestServer.ViewModels
             return _protocolManager.EncryptSendReceiveAck(msg);
         }
 
+        private object _LockAddLogg = new object();
+        private object _LockAddErrorLogg = new object();
+
         public void AddLog(string text)
         {
-            while (_logLines.Count > 500)
+            lock (_LockAddLogg)
             {
-                _logLines.RemoveAt(_logLines.Count - 1);
+                while (_logLines.Count > 200)
+                {
+                    _logLines.RemoveAt(_logLines.Count - 1);
+                }
+
+                _logLines.Insert(0, $"{DateTime.Now}: {text} \n");
+                NotifyOfPropertyChange(nameof(LogText));
             }
-
-            _logLines.Insert(0, $"{DateTime.Now}: {text}");            
-
-            NotifyOfPropertyChange(nameof(LogText));
         }
 
         public void AddErrorLog(string text)
         {
             AddLog(text);
 
-            while (_errorLogLines.Count > 500)
+            lock (_LockAddErrorLogg)
             {
-                _logLines.RemoveAt(_errorLogLines.Count - 1);
+                while (_errorLogLines.Count > 200)
+                {
+                    _errorLogLines.RemoveAt(_errorLogLines.Count - 1);
+                }
+
+                _errorLogLines.Insert(0, $"{DateTime.Now}: {text} \n");
+
+                NotifyOfPropertyChange(nameof(ErrorLogText));
             }
-
-            _errorLogLines.Insert(0, $"{DateTime.Now}: {text}");
-
-            NotifyOfPropertyChange(nameof(ErrorLogText));
         }
 
 
@@ -972,14 +1041,89 @@ namespace TestServer.ViewModels
             }
         }
 
-        public void Auto_StartWriteToReader1()
+        public void Auto_StartStopWriteToReader1()
         {
-            _AutoReaderTest.StartTest(AutoTest_ComPortReader1);
+            if (string.IsNullOrEmpty(AutoTest_ComPortReader1))
+            {
+                AddLog("No com-port selected");
+                return;
+            }
+
+            if (_AutoReaderTest.IsConnected)
+            {
+                _AutoReaderTest.StopTest();
+                Auto_StartStopWriteToReader1Content = "Start";
+            }
+            else
+            {
+                var result = _AutoReaderTest.StartTest(AutoTest_ComPortReader1);
+                if (result)
+                {
+                    Auto_StartStopWriteToReader1Content = "Stop";
+                }
+            }
         }
 
-        public void Auto_StopWriteToReader1()
+        private string _Auto_StartStopWriteToReader1Content = "Start";
+        public string Auto_StartStopWriteToReader1Content
         {
-            _AutoReaderTest.StopTest();
+            get { return _Auto_StartStopWriteToReader1Content; }
+            set
+            {
+                if (value == _Auto_StartStopWriteToReader1Content) return;
+                _Auto_StartStopWriteToReader1Content = value;
+                NotifyOfPropertyChange(nameof(Auto_StartStopWriteToReader1Content));
+            }
+        }
+
+
+        // ***** AutoComplete Test *****
+        public void Auto_StartCompleteTest()
+        {
+            if (string.IsNullOrEmpty(AutoTest_ComPortReader1))
+            {
+                AddLog("No com-port selected");
+                return;
+            }
+
+            if (_AutoCompleteTest.IsConnected)
+            {
+                _AutoCompleteTest.StopTest();
+                Auto_StartStopCompleteTestContent = "Start";
+            }
+            else
+            {
+                var result = _AutoCompleteTest.StartTest(AutoTest_ComPortReader1, AutoTest_UsePhysicalMedia);
+                if (result)
+                {
+                    Auto_StartStopCompleteTestContent = "Stop";
+                }
+            }
+        }
+
+        private string _Auto_StartStopCompleteTestContent = "Start";
+        public string Auto_StartStopCompleteTestContent
+        {
+            get { return _Auto_StartStopCompleteTestContent; }
+            set
+            {
+                if (value == _Auto_StartStopCompleteTestContent) return;
+                _Auto_StartStopCompleteTestContent = value;
+                NotifyOfPropertyChange(nameof(Auto_StartStopCompleteTestContent));
+            }
+        }
+
+        private bool _AutoTest_UsePhysicalMedia;
+
+        public bool AutoTest_UsePhysicalMedia
+        {
+            get { return _AutoTest_UsePhysicalMedia; }
+            set
+            {
+                if (value == _AutoTest_UsePhysicalMedia) return;
+                _AutoTest_UsePhysicalMedia = value;
+                NotifyOfPropertyChange(nameof(AutoTest_UsePhysicalMedia));
+            }
         }
     }
 }

@@ -8,11 +8,8 @@ using TestServer.ViewModels;
 
 namespace TestServer.AutoTest
 {
-    public class AutoIOTest
+    public class AutoIOTest : AutoTestBase
     {
-        private ProtocolManager _ProtocolManager;
-        private Protocol _protocol;
-        private MainViewModel _ViewModel;
 
         private List<TestInstruction> _InstructionList = new List<TestInstruction>();
         private int _InstructionIdx = 0;
@@ -21,12 +18,10 @@ namespace TestServer.AutoTest
         private Thread _AutoIOTestTask;
         private CancellationTokenSource _CancellationToken;
 
-        public AutoIOTest(Protocol argProtocol, ProtocolManager argProtocolManager, MainViewModel argViewModel)
-        {
-            _protocol = argProtocol;
-            _ProtocolManager = argProtocolManager;
-            _ViewModel = argViewModel;
 
+        public AutoIOTest(Protocol argProtocol, ProtocolManager argProtocolManager, MainViewModel argViewModel)
+            : base(argProtocol, argProtocolManager, argViewModel)
+        {
             InitTestList();
         }
 
@@ -217,42 +212,5 @@ namespace TestServer.AutoTest
             _InstructionList.Add(instruction);
         }
 
-        private ProtocolResult SendRelais(ref byte argMask, byte argRelaisNr, bool argValue)
-        {
-            // allow only Relais 1-4
-            if (argRelaisNr < 1 || argRelaisNr > 4)
-            {
-                LogError($"SendRelais invalid nr {argRelaisNr}");
-                return ProtocolResult.UnknownError;
-            }
-
-            int tempMask = argMask;
-
-            if (argValue)
-            {
-                // set bit
-                tempMask |= 1 << (argRelaisNr - 1);
-            }
-            else
-            {
-                // reset bit
-                tempMask &= ~(1 << (argRelaisNr - 1));
-            }
-
-            argMask = Convert.ToByte(tempMask);
-
-            var cmd = _protocol.CreateRelaisCommand(argMask);
-            return _ProtocolManager.EncryptSendReceiveAck(cmd);
-        }
-
-        private void Log(string argMessage)
-        {
-            _ViewModel.AddLog(argMessage);
-        }
-
-        private void LogError(string argMessage)
-        {
-            _ViewModel.AddErrorLog(argMessage);
-        }
     }
 }

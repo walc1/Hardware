@@ -100,6 +100,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AutoTest\AutoCompleteTest.cs" />
+    <Compile Include="AutoTest\AutoTestBase.cs" />
     <Compile Include="AutoTest\AutoReaderTest.cs" />
     <Compile Include="AutoTest\AutoIOTest.cs" />
     <Compile Include="AutoTest\TestInstruction.cs" />
