@@ -1,0 +1,20 @@
+<MsgTemplate>
+	<SizeText1>32</SizeText1>
+	<PosXText1>50</PosXText1>
+	<PosYText1>200</PosYText1>
+	
+	<SizeText2>31</SizeText2>
+	<PosXText2>50</PosXText2>
+	<PosYText2>270</PosYText2>
+	
+	<SizeText3>31</SizeText3>
+	<PosXText3>50</PosXText3>
+	<PosYText3>320</PosYText3>	
+	
+	<TextColorR>0</TextColorR>
+	<TextColorG>0</TextColorG>
+	<TextColorB>0</TextColorB>
+	
+	<PosXImage>550</PosXImage>
+	<PosYImage>130</PosYImage>
+</MsgTemplate>

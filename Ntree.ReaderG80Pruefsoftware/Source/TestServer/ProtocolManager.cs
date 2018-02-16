@@ -26,6 +26,7 @@ namespace TestServer
 
         public void EncryptSendReceice(byte[] data)
         {
+            // Note: Bestätigt result mit "ACK"
             var enc = _protocolHelper.EncryptMessage(data);
             var answer = Connection.SendReceive(enc);
             if (answer != null)
@@ -52,6 +53,7 @@ namespace TestServer
 
         public ProtocolResult EncryptSendReceiveAck(byte[] msg)
         {
+            // Note: Keine bestätigung vom result
             var enc = _protocolHelper.EncryptMessage(msg);
             var ackEnc = Connection.SendReceive(enc);
             if (ackEnc == null)
