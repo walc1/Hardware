@@ -25,9 +25,9 @@ namespace TestServer.Connection
 
         public event MessageReceived MessageReceived;
 
-        public string TerminalIp { get; set; } = "192.168.1.164";
+        public string TerminalIp { get; set; } = "10.85.2.199";
 
-        public int Port { get; set; } = 9999;
+        public int Port { get; set; } = 9998;
 
         public bool IsConnected { get; private set; }
         public string Name { get; private set; }
@@ -68,6 +68,9 @@ namespace TestServer.Connection
 
                 _readerTask = new Thread(() =>
                 {
+                    // activate UDP-Tool Connection!!!
+                    Send(new byte[2] { 0x01, Shared.Protocol.END });
+
                     while (!_cancellationToken.IsCancellationRequested)
                     {
                         byte[] data;
