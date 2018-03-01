@@ -1,14 +1,15 @@
 <Display>
-	<!-- 0 = 0°, 1 = 180°, 2 = 90°, 3 = 270° -->
+<!-- DisplayType 0 = None; 1 LCD 2x20; 11 = TFT -->
+<!-- Orientation 0 = Landscape; 2 = Portrait -->
+	<DisplayType>11</DisplayType>
 	<Orientation>0</Orientation>
 	<Logo>logo_300_115.png</Logo>
 	<LogoPosX>250</LogoPosX>
-	<LogoPosY>150</LogoPosY>
+	<LogoPosY>170</LogoPosY>
 	<BackColorR>0</BackColorR>
 	<BackColorG>0</BackColorG>
 	<BackColorB>0</BackColorB>
-	<ShowTime>True</ShowTime>
-	<!-- T = 12:00:00, t = 12:00  -->
+	<ShowTime>False</ShowTime>
 	<TimeFormat>T</TimeFormat>
 	<TimePosX>705</TimePosX>
 	<TimePosY>440</TimePosY>

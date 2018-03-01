@@ -1,14 +1,12 @@
 <Server>
-	<!-- 0 = Serial, 1 = Ethernet -->
-	<PortType>0</PortType>
-	<!--Serial stuff -->
-	<Baudrate>115200</Baudrate>
+<!-- PortType 0 = Serial; 1 = Network -->
+	<PortType>1</PortType>
+	<Baudrate>38400</Baudrate>
 	<PortName>COM1</PortName>
-	<!--Ethernet stuff -->
-	<ServerIpAddress>192.168.1.220</ServerIpAddress>
+	<ServerIpAddress>10.85.2.83</ServerIpAddress>
 	<TcpPort>9999</TcpPort>
 	<UdpPort>9998</UdpPort>
-	<IpAddress>192.168.1.164</IpAddress>
+	<IpAddress>10.85.2.199</IpAddress>
 	<SubnetMask>255.255.255.0</SubnetMask>
-	<Gateway>192.168.1.1</Gateway>
+	<Gateway>10.85.2.240</Gateway>
 </Server>

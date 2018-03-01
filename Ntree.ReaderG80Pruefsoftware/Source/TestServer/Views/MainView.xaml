@@ -27,12 +27,17 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <GroupBox Header="Connection">
-                    <StackPanel>
-                        <Button x:Name="Connect" Visibility="{Binding IsConnected, Converter={StaticResource FalseToVisible}}">Connect</Button>
-                        <Button x:Name="Disconnect" Visibility="{Binding IsConnected, Converter={StaticResource TrueToVisible}}">Disconnect</Button>
-                    </StackPanel>
-                </GroupBox>
+                <StackPanel>
+                    <GroupBox Header="Connection">
+                        <StackPanel>
+                            <StackPanel>
+                                <Button x:Name="Connect" Visibility="{Binding IsConnected, Converter={StaticResource FalseToVisible}}">Connect</Button>
+                                <Button x:Name="Disconnect" Visibility="{Binding IsConnected, Converter={StaticResource TrueToVisible}}">Disconnect</Button>
+                            </StackPanel>
+                            <Button x:Name="SendBroadcast" Margin="5,3,435.2,3">Send Broadcast</Button>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
                 <GroupBox Grid.Row="1" Header="IOs" IsEnabled="{Binding IsConnected}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="3">

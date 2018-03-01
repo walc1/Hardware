@@ -1,6 +1,6 @@
 <Server>
 	<!-- 0 = Serial, 1 = Ethernet -->
 	<PortType>0</PortType>
-	<Baudrate>115200</Baudrate>
+	<Baudrate>38400</Baudrate>
 	<PortName>COM1</PortName>
 </Server>

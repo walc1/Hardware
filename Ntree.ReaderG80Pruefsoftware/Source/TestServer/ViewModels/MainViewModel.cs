@@ -20,6 +20,7 @@ using Color = System.Windows.Media.Color;
 using TestServer.AutoTest;
 using System.Text.RegularExpressions;
 using System.Windows.Data;
+using TestServer.Connection;
 
 namespace TestServer.ViewModels
 {
@@ -1123,6 +1124,19 @@ namespace TestServer.ViewModels
                 if (value == _AutoTest_UsePhysicalMedia) return;
                 _AutoTest_UsePhysicalMedia = value;
                 NotifyOfPropertyChange(nameof(AutoTest_UsePhysicalMedia));
+            }
+        }
+
+        public void SendBroadcast()
+        {
+            var udpConnection = _Connection as UdpConnection;
+            if (udpConnection != null)
+            {
+                udpConnection.SendBroadcast();
+            }
+            else
+            {
+                LogError("UDP-Connection is closed!");
             }
         }
     }

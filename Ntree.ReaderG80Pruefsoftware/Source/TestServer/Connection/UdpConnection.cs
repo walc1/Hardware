@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using Shared;
 
@@ -106,6 +107,22 @@ namespace TestServer.Connection
             return true;
         }
 
+        public void SendBroadcast()
+        {
+            try
+            {
+                UdpClient client = new UdpClient();
+                IPEndPoint ip = new IPEndPoint(IPAddress.Broadcast, Port);
+                byte[] bytes = new byte[2] { 0x02, Shared.Protocol.END };
+                client.Send(bytes, bytes.Length, ip);
+                client.Close();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogException("Send Broadcast failed. ", ex);
+            }
+        }
+
         private byte[] TryReadTillEnd(int timeout)
         {
             try
@@ -116,7 +133,6 @@ namespace TestServer.Connection
                     if (_socket.Available > 0)
                     {
                         byte[] inBuf = new byte[_socket.Available];
-                        // Note: Dies müsste das Terminal sein von dem die Message kommt, oder?
                         EndPoint recEndPoint = new IPEndPoint(IPAddress.Any, 0);
                         _socket.ReceiveFrom(inBuf, ref recEndPoint);
                         if (inBuf.Last() == Protocol.END)
