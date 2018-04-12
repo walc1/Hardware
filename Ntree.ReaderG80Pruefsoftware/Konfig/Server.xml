@@ -1,7 +1,7 @@
 <Server>
 <!-- PortType 0 = Serial; 1 = Network -->
 	<PortType>1</PortType>
-	<Baudrate>38400</Baudrate>
+	<Baudrate>57600</Baudrate>
 	<PortName>COM1</PortName>
 	<ServerIpAddress>10.85.2.83</ServerIpAddress>
 	<TcpPort>9999</TcpPort>
