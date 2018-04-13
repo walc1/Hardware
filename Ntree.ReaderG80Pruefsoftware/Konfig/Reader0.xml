@@ -1,5 +1,5 @@
 <Reader>
-	<!-- 0 = Request, 1 = Auto, 2 = Redirect -->
+	<!-- 0 = Request, 1 = Auto, 2 = Redirect, 3 = CPR02HostMode -->
 	<Mode>1</Mode>
 	<PortName>COM2</PortName>
 	<Baudrate>19200</Baudrate>
@@ -7,5 +7,5 @@
 	<StopBits>1</StopBits>
 	<Databits>8</Databits>
 	<Termination>13</Termination>
-	<MessageLength>25</MessageLength>
+	<MessageLength>100</MessageLength>
 </Reader>

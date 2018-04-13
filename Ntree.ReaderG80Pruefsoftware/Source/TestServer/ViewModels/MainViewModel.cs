@@ -78,6 +78,7 @@ namespace TestServer.ViewModels
             _protocol.SystemInfoChanged += OnSystemInfoChanged;
             //_protocol.MediaRead += (sender, id, data) => ReadMedia = $"Id: {id} -> Card: {Encoding.UTF8.GetString(data)}";
             _protocol.MediaRead += _protocol_MediaRead;
+            _protocol.DeviceStateChanged += OnProtocol_DeviceStateChanged;
 
             TerminalTime = "--:--:--";
             _protocolHelper = new ProtocolHelper(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8 });
@@ -88,6 +89,11 @@ namespace TestServer.ViewModels
             _AutoIOTest = new AutoIOTest(_protocol, _protocolManager, this);
             _AutoReaderTest = new AutoReaderTest(_protocol, _protocolManager, this);
             _AutoCompleteTest = new AutoCompleteTest(_protocol, _protocolManager, this);
+        }
+
+        private void OnProtocol_DeviceStateChanged(object sender, byte readerId, DeviceState state)
+        {
+            //throw new NotImplementedException();
         }
 
         private void _protocol_MediaRead(object sender, byte readerId, byte[] cardData)
@@ -598,7 +604,7 @@ namespace TestServer.ViewModels
 
         public void SendText()
         {
-            var cmd = _protocol.CreateDisplayTextCommand(TextIndex, new ColorInfo(TextColor.R, TextColor.G, TextColor.B), TextPosX, TextPosY, TextSize, Text);
+            var cmd = _protocol.CreateDisplayTextCommand(TextIndex, new ColorInfo(TextColor.R, TextColor.G, TextColor.B), (short)TextPosX, (short)TextPosY, TextSize, Text);
             EncryptSendReceiveAck(cmd);
         }
 

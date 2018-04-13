@@ -1,6 +1,6 @@
 <Reader>
 	<!-- 0 = Request, 1 = Auto, 2 = Redirect, 3 = CPR02HostMode -->
-	<Mode>1</Mode>
+	<Mode>3</Mode>
 	<PortName>COM3</PortName>
 	<Baudrate>38400</Baudrate>
 	<Parity>0</Parity>

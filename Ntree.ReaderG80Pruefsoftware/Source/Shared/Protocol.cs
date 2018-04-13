@@ -12,6 +12,8 @@ namespace Shared
         private readonly ushort _displayHeight;
         public const int FILE_BUFFER_SIZE = 256;
         public const byte END = 0x03;
+        public const byte BACKLIGHT_ON = 0x7F;
+        public const byte BACKLIGHT_OUTOFORDER = 0x0A;
 
         public delegate void DelegateSenderOnly(object sender);
         public delegate void DelegateByte(object sender, byte id);
@@ -25,6 +27,7 @@ namespace Shared
         public delegate void DelegateLine(object sender, LineInfo lineInfo);
         public delegate void DelegateColor(object sender, ColorInfo color);
         public delegate void DelegateDisplayImage(object sender, ImageInfo imageInfo);
+        public delegate void DelegateTemplateMessage(object sender, string text1, string text2, string text3, string imageFilename, bool lockReading);
         public delegate void DelegateDeleteDisplayItem(object sender, DisplayCommand type, byte index);
         public delegate ProtocolResult DelegateFile(object sender, string filename);
         public delegate void DelegateDateTime(object sender, DateTime dateTime);
@@ -32,6 +35,9 @@ namespace Shared
         public delegate void DelegateSystemInfo(object sender, Version version, byte[] macAddress);
         public delegate void DelegateFileList(object sender, string[] files);
         public delegate void DelegatePortRedirect(object sender, byte readerId, ushort timeout, ushort readLenght, byte[] writeData);
+        public delegate void DelegatePortRedirectCRT310(object sender, byte readerId, ushort timeout, CRT310ResultLengthType readLenghtType, byte[] writeData);
+        public delegate void DelegatePortRedirectCRT310Answer(object sender, byte readerId, byte[] answer);
+        public delegate void DelegateDeviceStateChanged(object sender, byte readerId, DeviceState state);
         public delegate ProtocolResult DelegateI2CWrite(object sender, byte address, byte[] data);
         public delegate void DelegateI2CRead(object sender, byte address, int length);
         public delegate void DelegateI2CWriteRead(object sender, byte address, byte[] data, int readLength);
@@ -52,6 +58,7 @@ namespace Shared
         public event DelegateColor DisplayClearAll;
         public event DelegateSenderOnly DisplayInvalidate;
         public event DelegateDisplayImage DisplayImageChange;
+        public event DelegateTemplateMessage TemplateMessageChange;
         public event DelegateDeleteDisplayItem DeleteDisplayItem;
         public event DelegateFile ReadFile;
         public event DelegateFile WriteFile;
@@ -64,6 +71,9 @@ namespace Shared
         public event DelegateSenderOnly RequestSystemInfo;
         public event DelegateSystemInfo SystemInfoChanged;
         public event DelegatePortRedirect PortRedirect;
+        public event DelegatePortRedirectCRT310 PortRedirectCRT310;
+        public event DelegatePortRedirectCRT310Answer PortRedirectCRT310Answer;
+        public event DelegateDeviceStateChanged DeviceStateChanged;
         public event DelegateByte BacklightChange;
         public event DelegateI2CWrite I2CWriteData;
         public event DelegateI2CRead I2CReadData;
@@ -88,7 +98,7 @@ namespace Shared
             index = 0;
             if (data.Length > 1)
             {
-                var commandType = (CommandType) data[0];
+                var commandType = (CommandType)data[0];
 
                 if (!CheckLength(commandType, data))
                 {
@@ -101,155 +111,171 @@ namespace Shared
                     case CommandType.Relays:
                         return HandleRelays(data);
                     case CommandType.RelayTime:
-                    {
-                        return HandleRelaisTime(data);
-                    }
+                        {
+                            return HandleRelaisTime(data);
+                        }
                     case CommandType.Beeper:
-                    {
-                        return HandleBeeper(data);
-                    }
+                        {
+                            return HandleBeeper(data);
+                        }
                     case CommandType.Inputs:
-                    {
-                        return HandleInputs(data);
-                    }
+                        {
+                            return HandleInputs(data);
+                        }
                     case CommandType.RequestInputs:
-                    {
-                        return HandleRequestInput();
-                    }
+                        {
+                            return HandleRequestInput();
+                        }
                     case CommandType.WriteI2C:
-                    {
-                        return HandleI2CWrite(data);
-                    }
+                        {
+                            return HandleI2CWrite(data);
+                        }
                     case CommandType.ReadI2C:
-                    {
-                        return HandleI2CRead(data);
-                    }
+                        {
+                            return HandleI2CRead(data);
+                        }
                     case CommandType.WriteReadI2C:
-                    {
-                        return HandleI2CWriteRead(data);
-                    }
+                        {
+                            return HandleI2CWriteRead(data);
+                        }
                     case CommandType.I2CData:
-                    {
-                        return HandleI2CData(data, out resultData);
-                    }
+                        {
+                            return HandleI2CData(data, out resultData);
+                        }
                     case CommandType.WriteReadSpi:
-                    {
-                        return HandleSpiWriteRead(data);
-                    }
+                        {
+                            return HandleSpiWriteRead(data);
+                        }
                     case CommandType.SpiData:
-                    {
-                        return HandleSpiData(data, out resultData);
-                    }
+                        {
+                            return HandleSpiData(data, out resultData);
+                        }
                     case CommandType.ReadFile:
-                    {
-                        return HandleReadFile(data);
-                    }
+                        {
+                            return HandleReadFile(data);
+                        }
                     case CommandType.WriteFile:
-                    {
-                        return HandleWriteFile(data);
-                    }
+                        {
+                            return HandleWriteFile(data);
+                        }
                     case CommandType.FileData:
-                    {
-                        return HandleFileData(data, out index, out resultData);
-                    }
+                        {
+                            return HandleFileData(data, out index, out resultData);
+                        }
                     case CommandType.FileEnd:
                         return ProtocolResult.FileEnd;
                     case CommandType.FileList:
-                    {
-                        return HandleFileList(data);
-                    }
+                        {
+                            return HandleFileList(data);
+                        }
                     case CommandType.RequestFileList:
-                    {
-                        return HandleRequestFileList();
-                    }
+                        {
+                            return HandleRequestFileList();
+                        }
                     case CommandType.DeleteFile:
-                    {
-                        return HandleDeleteFile(data);
-                    }
+                        {
+                            return HandleDeleteFile(data);
+                        }
                     case CommandType.DisplayText:
-                    {
-                        return HandleDisplayText(data);
-                    }
+                        {
+                            return HandleDisplayText(data);
+                        }
                     case CommandType.DisplayButton:
-                    {
-                        return HandleDisplayButton(data);
-                    }
+                        {
+                            return HandleDisplayButton(data);
+                        }
                     case CommandType.DisplayRectangle:
-                    {
-                        return HandleDisplayRectangle(data);
-                    }
+                        {
+                            return HandleDisplayRectangle(data);
+                        }
                     case CommandType.DisplayLine:
-                    {
-                        return HanldeDisplayLine(data);
-                    }
+                        {
+                            return HanldeDisplayLine(data);
+                        }
                     case CommandType.DisplayImage:
-                    {
-                        return HandleDisplayImage(data);
-                    }
+                        {
+                            return HandleDisplayImage(data);
+                        }
+                    case CommandType.TemplateMsg:
+                        {
+                            return HandleTemplateMessage(data);
+                        }
                     case CommandType.DisplayDeleteText:
                     case CommandType.DisplayDeleteButton:
                     case CommandType.DisplayDeleteRectangle:
                     case CommandType.DisplayDeleteLine:
                     case CommandType.DisplayDeleteImage:
-                    {
-                        return HandleDisplayDelete(data, commandType);
-                    }
+                        {
+                            return HandleDisplayDelete(data, commandType);
+                        }
                     case CommandType.DisplayInvalidate:
-                    {
-                        return HandleDisplayInvalidate();
-                    }
+                        {
+                            return HandleDisplayInvalidate();
+                        }
                     case CommandType.DisplayClearAll:
-                    {
-                        return HandleDisplayClearAll(data);
-                    }
+                        {
+                            return HandleDisplayClearAll(data);
+                        }
                     case CommandType.TouchButton:
-                    {
-                        return HandleTouchButton(data);
-                    }
+                        {
+                            return HandleTouchButton(data);
+                        }
                     case CommandType.RequestTouchButton:
-                    {
-                        return HandleRequestTouchButton();
-                    }
+                        {
+                            return HandleRequestTouchButton();
+                        }
                     case CommandType.Backlight:
-                    {
-                        return HandleBacklight(data);
-                    }
+                        {
+                            return HandleBacklight(data);
+                        }
                     case CommandType.PortRedirect:
-                    {
-                        return HandlePortRedirect(data);
-                    }
+                        {
+                            return HandlePortRedirect(data);
+                        }
+                    case CommandType.PortRedirectCRT310:
+                        {
+                            return HandlePortRedirectCRT310(data);
+                        }
+                    case CommandType.PortRedirectCRT310Answer:
+                        {
+                            return HandlePortRedirectCRT310Answer(data);
+                        }
                     case CommandType.ReadMedia:
-                    {
-                        return HandleReadMedia(data);
-                    }
+                        {
+                            return HandleReadMedia(data);
+                        }
                     case CommandType.RequestMedia:
-                    {
-                        return HandleRequestMedia(data);
-                    }
+                        {
+                            return HandleRequestMedia(data);
+                        }
+                    case CommandType.DeviceState:
+                        {
+                            return HandleDeviceState(data);
+                        }
                     case CommandType.SystemInfo:
-                    {
-                        return HandleSystemInfo(data);
-                    }
+                        {
+                            return HandleSystemInfo(data);
+                        }
                     case CommandType.RequestSystemInfo:
-                    {
-                        return HandleRequestVersion();
-                    }
+                        {
+                            return HandleRequestVersion();
+                        }
                     case CommandType.Date:
-                    {
-                        return HandleDate(data);
-                    }
+                        {
+                            return HandleDate(data);
+                        }
                     case CommandType.RequestDate:
-                    {
-                        return HandleDateRequest();
-                    }
+                        {
+                            return HandleDateRequest();
+                        }
                     case CommandType.Reboot:
-                    {
-                        return HandleReboot();
-                    }
+                        {
+                            return HandleReboot();
+                        }
                     case CommandType.Ack:
                         return ProtocolResult.AckAck;
                     case CommandType.Nack:
-                        return (ProtocolResult) data[1];
+                        return (ProtocolResult)data[1];
                 }
             }
             return ProtocolResult.UnknownCommand;
@@ -265,13 +291,13 @@ namespace Shared
 
         private ProtocolResult HandleSpiWriteRead(byte[] data)
         {
-            var cs = (SpiChipSelect) data[1];
+            var cs = (SpiChipSelect)data[1];
             var config = data[2];
             var csActiveState = (config & 0x01) > 0;
             var clockIdleState = (config & 0x02) > 0;
             var clockEdge = (config & 0x04) > 0;
             var freq = (SpiSpeed)((config & 0x18) >> 3);
-           
+
             var length = data[3] + (data[4] << 8);
             var writeBuffer = new byte[length];
             Array.Copy(data, 5, writeBuffer, 0, length);
@@ -452,7 +478,7 @@ namespace Shared
             if (SystemInfoChanged != null)
             {
                 SystemInfoChanged(this, version, mac);
-                return ProtocolResult.Ack;
+                return ProtocolResult.AckAck;
             }
             return ProtocolResult.EventError;
         }
@@ -471,7 +497,7 @@ namespace Shared
             if (MediaRead != null)
             {
                 MediaRead(this, readerId, cardData);
-                return ProtocolResult.Ack;
+                return ProtocolResult.AckAck;
             }
             return ProtocolResult.EventError;
         }
@@ -487,13 +513,71 @@ namespace Shared
 
             var timeout = (ushort)(data[2] + (data[3] << 8));
             var writeLength = data[4] + (data[5] << 8);
-            var readLength =  (ushort)(data[6] + (data[7] << 8));
+            var readLength = (ushort)(data[6] + (data[7] << 8));
             var writeBuffer = new byte[writeLength];
             Array.Copy(data, 8, writeBuffer, 0, writeLength);
             if (PortRedirect != null)
             {
                 PortRedirect(this, readerId, timeout, readLength, writeBuffer);
                 return ProtocolResult.None;
+            }
+            return ProtocolResult.EventError;
+        }
+
+        private ProtocolResult HandlePortRedirectCRT310(byte[] data)
+        {
+            var readerId = data[1];
+
+            if (!CheckDisplayParamter(readerId, 1, 3, "ReaderId -> PortRedirect"))
+            {
+                return ProtocolResult.InvalidParameter;
+            }
+
+            var timeout = (ushort)(data[2] + (data[3] << 8));
+            var writeLength = data[4] + (data[5] << 8);
+            CRT310ResultLengthType readLengthType = (CRT310ResultLengthType)data[6];
+            var writeBuffer = new byte[writeLength];
+            Array.Copy(data, 7, writeBuffer, 0, writeLength);
+            if (PortRedirectCRT310 != null)
+            {
+                PortRedirectCRT310(this, readerId, timeout, readLengthType, writeBuffer);
+                return ProtocolResult.None;
+            }
+            return ProtocolResult.EventError;
+        }
+
+        private ProtocolResult HandlePortRedirectCRT310Answer(byte[] data)
+        {
+            var readerId = data[1];
+            if (!CheckDisplayParamter(readerId, 1, 3, "ReaderId -> PortRedirectCRT310Answer"))
+            {
+                return ProtocolResult.InvalidParameter;
+            }
+
+            var length = data[2] + (data[3] << 8);
+            var answer = new byte[length];
+            Array.Copy(data, 4, answer, 0, length);
+            if (PortRedirectCRT310Answer != null)
+            {
+                PortRedirectCRT310Answer(this, readerId, answer);
+                return ProtocolResult.AckAck;
+            }
+            return ProtocolResult.EventError;
+        }
+
+        private ProtocolResult HandleDeviceState(byte[] data)
+        {
+            var readerId = data[1];
+            if (!CheckDisplayParamter(readerId, 1, 3, "ReaderId -> DeviceState"))
+            {
+                return ProtocolResult.InvalidParameter;
+            }
+
+            var state = (DeviceState)data[2];
+            if (DeviceStateChanged != null)
+            {
+                DeviceStateChanged(this, readerId, state);
+                return ProtocolResult.AckAck;
             }
             return ProtocolResult.EventError;
         }
@@ -541,7 +625,7 @@ namespace Shared
 
         private ProtocolResult HandleDisplayDelete(byte[] data, CommandType commandType)
         {
-            var type = (DisplayCommand) commandType - 0x10;
+            var type = (DisplayCommand)commandType - 0x10;
             var idx = data[1];
 
             if (!CheckDisplayParamter((byte)commandType, 0x50, 0x54, "Index -> DisplayDelete"))
@@ -564,8 +648,8 @@ namespace Shared
         private ProtocolResult HandleDisplayImage(byte[] data)
         {
             var idx = data[1];
-            var x = (ushort) (data[2] + (data[3] << 8));
-            var y = (ushort) (data[4] + (data[5] << 8));
+            var x = (ushort)(data[2] + (data[3] << 8));
+            var y = (ushort)(data[4] + (data[5] << 8));
 
             if (!CheckDisplayParamter(idx, 1, 10, "Index -> DisplayImage"))
             {
@@ -584,7 +668,7 @@ namespace Shared
             string file = string.Empty;
             for (int i = 0; i < len; i++)
             {
-                file += (char) data[7 + i];
+                file += (char)data[7 + i];
             }
 
             if (DisplayImageChange != null)
@@ -598,10 +682,10 @@ namespace Shared
         private ProtocolResult HanldeDisplayLine(byte[] data)
         {
             var idx = data[1];
-            var x1 = (ushort) (data[2] + (data[3] << 8));
-            var y1 = (ushort) (data[4] + (data[5] << 8));
-            var x2 = (ushort) (data[6] + (data[7] << 8));
-            var y2 = (ushort) (data[8] + (data[9] << 8));
+            var x1 = (ushort)(data[2] + (data[3] << 8));
+            var y1 = (ushort)(data[4] + (data[5] << 8));
+            var x2 = (ushort)(data[6] + (data[7] << 8));
+            var y2 = (ushort)(data[8] + (data[9] << 8));
 
             if (!CheckDisplayParamter(idx, 1, 10, "Index -> DisplayLine"))
             {
@@ -638,10 +722,10 @@ namespace Shared
         private ProtocolResult HandleDisplayRectangle(byte[] data)
         {
             var idx = data[1];
-            var x = (ushort) (data[2] + (data[3] << 8));
-            var y = (ushort) (data[4] + (data[5] << 8));
-            var width = (ushort) (data[6] + (data[7] << 8));
-            var height = (ushort) (data[8] + (data[9] << 8));
+            var x = (ushort)(data[2] + (data[3] << 8));
+            var y = (ushort)(data[4] + (data[5] << 8));
+            var width = (ushort)(data[6] + (data[7] << 8));
+            var height = (ushort)(data[8] + (data[9] << 8));
 
             if (!CheckDisplayParamter(idx, 1, 10, "Index -> DisplayRectangle"))
             {
@@ -676,10 +760,10 @@ namespace Shared
         private ProtocolResult HandleDisplayButton(byte[] data)
         {
             var idx = data[1];
-            var x = (ushort) (data[2] + (data[3] << 8));
-            var y = (ushort) (data[4] + (data[5] << 8));
-            var width = (ushort) (data[6] + (data[7] << 8));
-            var height = (ushort) (data[8] + (data[9] << 8));
+            var x = (ushort)(data[2] + (data[3] << 8));
+            var y = (ushort)(data[4] + (data[5] << 8));
+            var width = (ushort)(data[6] + (data[7] << 8));
+            var height = (ushort)(data[8] + (data[9] << 8));
 
             if (!CheckDisplayParamter(idx, 1, 10, "Index -> DisplayButton"))
             {
@@ -709,7 +793,7 @@ namespace Shared
             string text = string.Empty;
             for (int i = 0; i < len; i++)
             {
-                text += (char) data[18 + i];
+                text += (char)data[18 + i];
             }
             if (DisplayButtonChange != null)
             {
@@ -722,8 +806,8 @@ namespace Shared
         private ProtocolResult HandleDisplayText(byte[] data)
         {
             var idx = data[1];
-            var x = (ushort) (data[2] + (data[3] << 8));
-            var y = (ushort) (data[4] + (data[5] << 8));
+            var x = (ushort)(data[2] + (data[3] << 8));
+            var y = (ushort)(data[4] + (data[5] << 8));
 
             if (!CheckDisplayParamter(idx, 1, 20, "Index -> DisplayText"))
             {
@@ -743,7 +827,7 @@ namespace Shared
             string text = string.Empty;
             for (int i = 0; i < len; i++)
             {
-                text += (char) data[11 + i];
+                text += (char)data[11 + i];
             }
             if (DisplayTextChange != null)
             {
@@ -753,13 +837,78 @@ namespace Shared
             return ProtocolResult.EventError;
         }
 
+        private ProtocolResult HandleTemplateMessage(byte[] data)
+        {
+            string text1 = string.Empty;
+            string text2 = string.Empty;
+            string text3 = string.Empty;
+            string imgFilename = string.Empty;
+
+            var idx = 1;
+            // text 1
+            var lenText1 = data[idx];
+            idx++;
+            for (int i = 0; i < lenText1; i++)
+            {
+                text1 += (char)data[idx];
+                idx++;
+            }
+            // text 2
+            var lenText2 = data[idx];
+            idx++;
+            for (int i = 0; i < lenText2; i++)
+            {
+                text2 += (char)data[idx];
+                idx++;
+            }
+            // text 3
+            var lenText3 = data[idx];
+            idx++;
+            for (int i = 0; i < lenText3; i++)
+            {
+                text3 += (char)data[idx];
+                idx++;
+            }
+            // image
+            var lenImage = data[idx];
+            idx++;
+            for (int i = 0; i < lenImage; i++)
+            {
+                imgFilename += (char)data[idx];
+                idx++;
+            }
+            // beeper
+            var beeperDuration = (data[idx] + (data[idx + 1] << 8)) / 10.0;
+            idx += 2;
+            // output relais
+            var relais = new Relay[7];
+            for (int i = 0; i < relais.Length; i++)
+            {
+                relais[i] = new Relay(i, (data[idx] & Pow(2, i)) > 0);
+            }
+            idx++;
+            // lock reading serial port 1-3
+            bool lockReading = data[idx] == 0x01;
+
+            if (TemplateMessageChange != null && SwitchRelais != null && ActivateBeeper != null)
+            {
+                SwitchRelais(this, relais);
+                ActivateBeeper(this, beeperDuration);
+                TemplateMessageChange(this, text1, text2, text3, imgFilename, lockReading);
+
+                return ProtocolResult.Ack;
+            }
+
+            return ProtocolResult.EventError;
+        }
+
         private ProtocolResult HandleFileList(byte[] data)
         {
             var len = data[1] + (data[2] << 8);
             string text = string.Empty;
             for (int i = 0; i < len; i++)
             {
-                text += (char) data[3 + i];
+                text += (char)data[3 + i];
             }
 
             var files = text.Split(',');
@@ -832,7 +981,7 @@ namespace Shared
 
             if (SwitchRelais != null)
             {
-                SwitchRelais(this, new[] {relais});
+                SwitchRelais(this, new[] { relais });
                 return ProtocolResult.Ack;
             }
             return ProtocolResult.EventError;
@@ -934,6 +1083,8 @@ namespace Shared
                     return len >= 12;
                 case CommandType.DisplayImage:
                     return len > 6 && len >= 6 + data[6];
+                case CommandType.TemplateMsg:
+                    return len >= 8;
                 case CommandType.DisplayDeleteText:
                     return len >= 1;
                 case CommandType.DisplayDeleteButton:
@@ -956,10 +1107,16 @@ namespace Shared
                     return len >= 1;
                 case CommandType.PortRedirect:
                     return len > 7 && len >= 7 + data[4] + (data[5] << 8);
+                case CommandType.PortRedirectCRT310:
+                    return len > 6 && len >= 6 + data[4] + (data[5] << 8);
+                case CommandType.PortRedirectCRT310Answer:
+                    return len > 3 && len >= 3 + data[2] + (data[3] << 8);
                 case CommandType.ReadMedia:
                     return len > 3 && len >= 3 + data[2] + (data[3] << 8);
                 case CommandType.RequestMedia:
                     return len >= 1;
+                case CommandType.DeviceState:
+                    return len >= 3;
                 case CommandType.SystemInfo:
                     return len >= 4;
                 case CommandType.RequestSystemInfo:
@@ -986,7 +1143,7 @@ namespace Shared
                 return false;
             }
             return true;
-        } 
+        }
 
         public byte[] CreateRelaisCommand(byte bitmask)
         {
@@ -999,33 +1156,33 @@ namespace Shared
         public byte[] CreateSingleRelaisCommand(byte bitmask, double duration)
         {
             var data = new byte[4];
-            data[0] = (byte) CommandType.RelayTime;
+            data[0] = (byte)CommandType.RelayTime;
             data[1] = bitmask;
-            var time = (short) (duration * 10);
-            data[2] = (byte) time;
-            data[3] = (byte) (time >> 8);
+            var time = (short)(duration * 10);
+            data[2] = (byte)time;
+            data[3] = (byte)(time >> 8);
             return data;
         }
 
         public byte[] CreateBeeperCommand(double duration)
         {
             var data = new byte[3];
-            data[0] = (byte) CommandType.Beeper;
-            var time = (short) (duration * 10);
-            data[1] = (byte) time;
-            data[2] = (byte) (time >> 8);
+            data[0] = (byte)CommandType.Beeper;
+            var time = (short)(duration * 10);
+            data[1] = (byte)time;
+            data[2] = (byte)(time >> 8);
             return data;
         }
 
         public byte[] CreateInputCommand(bool[] inputStates)
         {
             var data = new byte[2];
-            data[0] = (byte) CommandType.Inputs;
+            data[0] = (byte)CommandType.Inputs;
             for (int i = 0; i < inputStates.Length; i++)
             {
                 if (inputStates[i])
                 {
-                    data[1] |= (byte) Pow(2, i);
+                    data[1] |= (byte)Pow(2, i);
                 }
             }
             return data;
@@ -1034,56 +1191,136 @@ namespace Shared
         public byte[] CreateTouchButtonCommand(byte buttonId)
         {
             var data = new byte[2];
-            data[0] = (byte) CommandType.TouchButton;
+            data[0] = (byte)CommandType.TouchButton;
             data[1] = buttonId;
             return data;
         }
 
-        public byte[] CreateDisplayTextCommand(byte index, ColorInfo color, ushort x, ushort y, byte size, string text)
+        public byte[] CreateDisplayTextCommand(byte index, ColorInfo color, short x, short y, byte size, string text)
         {
-            if (text.Length > 255)
+            //var textBytes = Encoding.UTF8.GetBytes(text);
+            var textBytes = text.ToCharArray();
+
+            if (textBytes.Length > 255)
             {
                 throw new ArgumentException("Text length max 255");
             }
 
-            var data = new byte[11 + text.Length];
-            data[0] = (byte) CommandType.DisplayText;
+            var data = new byte[11 + textBytes.Length];
+            data[0] = (byte)CommandType.DisplayText;
             data[1] = index;
-            data[2] = (byte) x;
-            data[3] = (byte) (x >> 8);
-            data[4] = (byte) y;
-            data[5] = (byte) (y >> 8);
+            data[2] = (byte)x;
+            data[3] = (byte)(x >> 8);
+            data[4] = (byte)y;
+            data[5] = (byte)(y >> 8);
             data[6] = color.R;
             data[7] = color.G;
             data[8] = color.B;
             data[9] = size;
-            data[10] = (byte) text.Length;
-            var t = Encoding.UTF8.GetBytes(text);
-            for (int i = 0; i < t.Length; i++)
+            data[10] = (byte)textBytes.Length;
+            for (int i = 0; i < textBytes.Length; i++)
             {
-                data[11 + i] = t[i];
+                data[11 + i] = (byte)textBytes[i];
             }
+            return data;
+        }
+
+        public byte[] CreateTemplateMessageCommand(string text1, string text2, string text3, string imgFilename, double beepDuration, byte outputBitmask, bool lockReading)
+        {
+            var textBytes1 = Encoding.UTF8.GetBytes(text1);
+            var textBytes2 = Encoding.UTF8.GetBytes(text2);
+            var textBytes3 = Encoding.UTF8.GetBytes(text3);
+
+            if (textBytes1.Length > 255 || textBytes2.Length > 255 || textBytes3.Length > 255)
+            {
+                throw new ArgumentException("Text length max 255");
+            }
+
+            var imgText = Encoding.UTF8.GetBytes(imgFilename);
+            if (imgText.Length > 255)
+            {
+                throw new ArgumentException("Filename length max 255");
+            }
+
+            var data = new byte[9 + textBytes1.Length + textBytes2.Length + textBytes3.Length + imgText.Length];
+            var idx = 0;
+
+            data[idx] = (byte)CommandType.TemplateMsg;
+            idx++;
+            // text 1
+            data[idx] = (byte)textBytes1.Length;
+            idx++;
+            for (int i = 0; i < textBytes1.Length; i++)
+            {
+                data[idx] = textBytes1[i];
+                idx++;
+            }
+            // text 2
+            data[idx] = (byte)textBytes2.Length;
+            idx++;
+            for (int i = 0; i < textBytes2.Length; i++)
+            {
+                data[idx] = textBytes2[i];
+                idx++;
+            }
+            // text 3
+            data[idx] = (byte)textBytes3.Length;
+            idx++;
+            for (int i = 0; i < textBytes3.Length; i++)
+            {
+                data[idx] = textBytes3[i];
+                idx++;
+            }
+            // image
+            data[idx] = (byte)imgText.Length;
+            idx++;
+            for (int i = 0; i < imgText.Length; i++)
+            {
+                data[idx] = imgText[i];
+                idx++;
+            }
+            // beeper
+            var time = (short)(beepDuration * 10);
+            data[idx] = (byte)time;
+            idx++;
+            data[idx] = (byte)(time >> 8);
+            idx++;
+            // output mask
+            data[idx] = outputBitmask;
+            idx++;
+            // lock reading serial port 1-3
+            if (lockReading)
+            {
+                data[idx] = 0x01;
+            }
+            else
+            {
+                data[idx] = 0x00;
+            }
+
             return data;
         }
 
         public byte[] CreateDisplayButtonCommand(byte index, ColorInfo fontcolor, ColorInfo buttoncolor, ushort x, ushort y, ushort width, ushort height, byte fontSize, string text)
         {
-            if (text.Length > 255)
+            var utfText = Encoding.UTF8.GetBytes(text);
+
+            if (utfText.Length > 255)
             {
                 throw new ArgumentException("Text length max 255");
             }
 
-            var data = new byte[18 + text.Length];
-            data[0] = (byte) CommandType.DisplayButton;
+            var data = new byte[18 + utfText.Length];
+            data[0] = (byte)CommandType.DisplayButton;
             data[1] = index;
-            data[2] = (byte) x;
-            data[3] = (byte) (x >> 8);
-            data[4] = (byte) y;
-            data[5] = (byte) (y >> 8);
-            data[6] = (byte) width;
-            data[7] = (byte) (width >> 8);
-            data[8] = (byte) height;
-            data[9] = (byte) (height >> 8);
+            data[2] = (byte)x;
+            data[3] = (byte)(x >> 8);
+            data[4] = (byte)y;
+            data[5] = (byte)(y >> 8);
+            data[6] = (byte)width;
+            data[7] = (byte)(width >> 8);
+            data[8] = (byte)height;
+            data[9] = (byte)(height >> 8);
             data[10] = fontcolor.R;
             data[11] = fontcolor.G;
             data[12] = fontcolor.B;
@@ -1091,12 +1328,11 @@ namespace Shared
             data[14] = buttoncolor.G;
             data[15] = buttoncolor.B;
             data[16] = fontSize;
-            data[17] = (byte) text.Length;
+            data[17] = (byte)utfText.Length;
 
-            var t = Encoding.UTF8.GetBytes(text);
-            for (int i = 0; i < t.Length; i++)
+            for (int i = 0; i < utfText.Length; i++)
             {
-                data[18 + i] = t[i];
+                data[18 + i] = utfText[i];
             }
             return data;
         }
@@ -1104,16 +1340,16 @@ namespace Shared
         public byte[] CreateDisplayRectangleCommand(byte index, ColorInfo color, ushort x, ushort y, ushort width, ushort height)
         {
             var data = new byte[13];
-            data[0] = (byte) CommandType.DisplayRectangle;
+            data[0] = (byte)CommandType.DisplayRectangle;
             data[1] = index;
-            data[2] = (byte) x;
-            data[3] = (byte) (x >> 8);
-            data[4] = (byte) y;
-            data[5] = (byte) (y >> 8);
-            data[6] = (byte) width;
-            data[7] = (byte) (width >> 8);
-            data[8] = (byte) height;
-            data[9] = (byte) (height >> 8);
+            data[2] = (byte)x;
+            data[3] = (byte)(x >> 8);
+            data[4] = (byte)y;
+            data[5] = (byte)(y >> 8);
+            data[6] = (byte)width;
+            data[7] = (byte)(width >> 8);
+            data[8] = (byte)height;
+            data[9] = (byte)(height >> 8);
             data[10] = color.R;
             data[11] = color.G;
             data[12] = color.B;
@@ -1123,16 +1359,16 @@ namespace Shared
         public byte[] CreateDisplayLineCommand(byte index, ColorInfo color, ushort x1, ushort y1, ushort x2, ushort y2, byte size)
         {
             var data = new byte[14];
-            data[0] = (byte) CommandType.DisplayLine;
+            data[0] = (byte)CommandType.DisplayLine;
             data[1] = index;
-            data[2] = (byte) x1;
-            data[3] = (byte) (x1 >> 8);
-            data[4] = (byte) y1;
-            data[5] = (byte) (y1 >> 8);
-            data[6] = (byte) x2;
-            data[7] = (byte) (x2 >> 8);
-            data[8] = (byte) y2;
-            data[9] = (byte) (y2 >> 8);
+            data[2] = (byte)x1;
+            data[3] = (byte)(x1 >> 8);
+            data[4] = (byte)y1;
+            data[5] = (byte)(y1 >> 8);
+            data[6] = (byte)x2;
+            data[7] = (byte)(x2 >> 8);
+            data[8] = (byte)y2;
+            data[9] = (byte)(y2 >> 8);
             data[10] = color.R;
             data[11] = color.G;
             data[12] = color.B;
@@ -1142,22 +1378,24 @@ namespace Shared
 
         public byte[] CreateDisplayImageCommand(byte index, ushort x, ushort y, string filename)
         {
-            if (filename.Length > 255)
+            var utfText = Encoding.UTF8.GetBytes(filename);
+
+            if (utfText.Length > 255)
             {
                 throw new ArgumentException("Filename length max 255");
             }
-            var data = new byte[7 + filename.Length];
-            data[0] = (byte) CommandType.DisplayImage;
+            var data = new byte[7 + utfText.Length];
+            data[0] = (byte)CommandType.DisplayImage;
             data[1] = index;
-            data[2] = (byte) x;
-            data[3] = (byte) (x >> 8);
-            data[4] = (byte) y;
-            data[5] = (byte) (y >> 8);
-            data[6] = (byte)filename.Length;
-            var t = Encoding.UTF8.GetBytes(filename);
-            for (int i = 0; i < t.Length; i++)
+            data[2] = (byte)x;
+            data[3] = (byte)(x >> 8);
+            data[4] = (byte)y;
+            data[5] = (byte)(y >> 8);
+            data[6] = (byte)utfText.Length;
+
+            for (int i = 0; i < utfText.Length; i++)
             {
-                data[7 + i] = t[i];
+                data[7 + i] = utfText[i];
             }
             return data;
         }
@@ -1165,7 +1403,7 @@ namespace Shared
         public byte[] CreateDisplayDeleteCommand(byte index, DisplayCommand type)
         {
             var data = new byte[2];
-            data[0] = (byte) (type + 0x10);
+            data[0] = (byte)(type + 0x10);
             data[1] = index;
             return data;
         }
@@ -1173,7 +1411,7 @@ namespace Shared
         public byte[] CreateDisplayClearAllCommand(ColorInfo backgroundColor)
         {
             var data = new byte[4];
-            data[0] = (byte) CommandType.DisplayClearAll;
+            data[0] = (byte)CommandType.DisplayClearAll;
             data[1] = backgroundColor.R;
             data[2] = backgroundColor.G;
             data[3] = backgroundColor.B;
@@ -1183,35 +1421,35 @@ namespace Shared
         public byte[] CreateDisplayInvalidateCommand()
         {
             var data = new byte[1];
-            data[0] = (byte) CommandType.DisplayInvalidate;
+            data[0] = (byte)CommandType.DisplayInvalidate;
             return data;
         }
 
         public byte[] CreateSetDateCommand(DateTime date)
         {
             var data = new byte[8];
-            data[0] = (byte) CommandType.Date;
-            data[1] = (byte) date.Day;
-            data[2] = (byte) date.Month;
-            data[3] = (byte) date.Year;
-            data[4] = (byte) (date.Year >> 8);
-            data[5] = (byte) date.Hour;
-            data[6] = (byte) date.Minute;
-            data[7] = (byte) date.Second;
+            data[0] = (byte)CommandType.Date;
+            data[1] = (byte)date.Day;
+            data[2] = (byte)date.Month;
+            data[3] = (byte)date.Year;
+            data[4] = (byte)(date.Year >> 8);
+            data[5] = (byte)date.Hour;
+            data[6] = (byte)date.Minute;
+            data[7] = (byte)date.Second;
             return data;
         }
 
         public byte[] CreateGetDateCommand()
         {
             var data = new byte[1];
-            data[0] = (byte) CommandType.RequestDate;
+            data[0] = (byte)CommandType.RequestDate;
             return data;
         }
 
         public byte[] CreateAck(byte status = 0)
         {
             var data = new byte[2];
-            data[0] = (byte) CommandType.Ack;
+            data[0] = (byte)CommandType.Ack;
             data[1] = status;
             return data;
         }
@@ -1220,8 +1458,8 @@ namespace Shared
         public byte[] CreateNack(ProtocolResult error)
         {
             var data = new byte[2];
-            data[0] = (byte) CommandType.Nack;
-            data[1] = (byte) error;
+            data[0] = (byte)CommandType.Nack;
+            data[1] = (byte)error;
             return data;
         }
 
@@ -1244,7 +1482,7 @@ namespace Shared
             string text = string.Empty;
             for (int i = start; i < length + start; i++)
             {
-                text += (char) data[i];
+                text += (char)data[i];
             }
             return text;
         }
@@ -1252,10 +1490,10 @@ namespace Shared
         public byte[] CreateFileTransferCommand(byte index, byte[] buffer)
         {
             var data = new byte[4 + buffer.Length];
-            data[0] = (byte) CommandType.FileData;
+            data[0] = (byte)CommandType.FileData;
             data[1] = index;
-            data[2] = (byte) buffer.Length;
-            data[3] = (byte) (buffer.Length >> 8);
+            data[2] = (byte)buffer.Length;
+            data[3] = (byte)(buffer.Length >> 8);
             Array.Copy(buffer, 0, data, 4, buffer.Length);
             return data;
         }
@@ -1270,11 +1508,11 @@ namespace Shared
         public byte[] CreateReadFile(string filename)
         {
             var data = new byte[2 + filename.Length];
-            data[0] = (byte) CommandType.ReadFile;
-            data[1] = (byte) filename.Length;
+            data[0] = (byte)CommandType.ReadFile;
+            data[1] = (byte)filename.Length;
             for (int i = 0; i < filename.Length; i++)
             {
-                data[2 + i] = (byte) filename[i];
+                data[2 + i] = (byte)filename[i];
             }
             return data;
         }
@@ -1296,7 +1534,7 @@ namespace Shared
             var now = DateTime.Now;
             var data = new byte[8];
             data[0] = (byte)CommandType.Date;
-            data[1] = (byte) now.Day;
+            data[1] = (byte)now.Day;
             data[2] = (byte)now.Month;
             data[3] = (byte)now.Year;
             data[4] = (byte)(now.Year >> 8);
@@ -1338,7 +1576,7 @@ namespace Shared
         {
             var data = new byte[3 + files.Length];
             data[0] = (byte)CommandType.FileList;
-            data[1] = (byte) files.Length;
+            data[1] = (byte)files.Length;
             data[2] = (byte)(files.Length >> 8);
 
             for (int i = 0; i < files.Length; i++)
@@ -1371,7 +1609,7 @@ namespace Shared
         {
             var data = new byte[5 + macAddress.Length];
             data[0] = (byte)CommandType.SystemInfo;
-            data[1] = (byte) version.Major;
+            data[1] = (byte)version.Major;
             data[2] = (byte)version.Minor;
             data[3] = (byte)version.Build;
             data[4] = (byte)version.Revision;
@@ -1391,7 +1629,7 @@ namespace Shared
             var data = new byte[4 + cardData.Length];
             data[0] = (byte)CommandType.ReadMedia;
             data[1] = readerId;
-            data[2] = (byte) cardData.Length;
+            data[2] = (byte)cardData.Length;
             data[3] = (byte)(cardData.Length >> 8);
             Array.Copy(cardData, 0, data, 4, cardData.Length);
             return data;
@@ -1417,6 +1655,40 @@ namespace Shared
             data[6] = (byte)answerLength;
             data[7] = (byte)(answerLength >> 8);
             Array.Copy(dataToWrite, 0, data, 8, dataToWrite.Length);
+            return data;
+        }
+
+        public byte[] CreatePortRedirectCRT310Command(byte readerId, ushort timeout, CRT310ResultLengthType answerLengthType, byte[] dataToWrite)
+        {
+            var data = new byte[8 + dataToWrite.Length];
+            data[0] = (byte)CommandType.PortRedirectCRT310;
+            data[1] = readerId;
+            data[2] = (byte)timeout;
+            data[3] = (byte)(timeout >> 8);
+            data[4] = (byte)dataToWrite.Length;
+            data[5] = (byte)(dataToWrite.Length >> 8);
+            data[6] = (byte)answerLengthType;
+            Array.Copy(dataToWrite, 0, data, 7, dataToWrite.Length);
+            return data;
+        }
+
+        public byte[] CreatePortRedirectCRT310AnswerCommand(byte readerId, byte[] answer)
+        {
+            var data = new byte[4 + answer.Length];
+            data[0] = (byte)CommandType.PortRedirectCRT310Answer;
+            data[1] = readerId;
+            data[2] = (byte)answer.Length;
+            data[3] = (byte)(answer.Length >> 8);
+            Array.Copy(answer, 0, data, 4, answer.Length);
+            return data;
+        }
+
+        public byte[] CreateDeviceStateCommand(byte readerId, byte state)
+        {
+            var data = new byte[3];
+            data[0] = (byte)CommandType.DeviceState;
+            data[1] = readerId;
+            data[2] = state;
             return data;
         }
 
@@ -1476,9 +1748,9 @@ namespace Shared
         {
             var data = new byte[5 + value.Length];
             data[0] = (byte)CommandType.WriteReadSpi;
-            data[1] = (byte) cs;
+            data[1] = (byte)cs;
             byte config = csActiveState ? (byte)0x01 : (byte)0x00;
-            config |= clockIdle ? (byte) 0x02 : (byte) 0x00;
+            config |= clockIdle ? (byte)0x02 : (byte)0x00;
             config |= clockEdge ? (byte)0x04 : (byte)0x00;
             config |= (byte)((byte)spiSpeed << 3);
             data[2] = config;

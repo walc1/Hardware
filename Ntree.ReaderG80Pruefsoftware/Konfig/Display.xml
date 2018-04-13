@@ -1,5 +1,5 @@
 <Display>
-<!-- DisplayType 0 = None; 1 LCD 2x20; 11 = TFT -->
+<!-- DisplayType 0 = None; 1 = LCD 2x16; 2 = LCD 2x20, 3 = 4x20; 11 = TFT -->
 <!-- Orientation 0 = Landscape; 2 = Portrait -->
 	<DisplayType>11</DisplayType>
 	<Orientation>0</Orientation>

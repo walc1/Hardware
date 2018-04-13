@@ -28,6 +28,8 @@ namespace Shared
         DisplayRectangle = DisplayCommand.Rectangle,
         DisplayLine = DisplayCommand.Line,
         DisplayImage = DisplayCommand.Image,
+        TemplateMsg = 0x45,
+
         DisplayDeleteText = DisplayCommand.Text + 0x10,
         DisplayDeleteButton = DisplayCommand.Button + 0x10,
         DisplayDeleteRectangle = DisplayCommand.Rectangle + 0x10,
@@ -39,10 +41,13 @@ namespace Shared
         Backlight = 0x62,
         TouchButton = 0x63,
         RequestTouchButton = 0x64,
-        
+
         ReadMedia = 0x70,
         RequestMedia = 0x71,
         PortRedirect = 0x72,
+        PortRedirectCRT310 = 0x73,
+        PortRedirectCRT310Answer = 0x74,
+        DeviceState = 0x75,
 
         SystemInfo = 0x80,
         RequestSystemInfo = 0x81,
