@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="ButtonInfo.cs" />
     <Compile Include="ColorInfo.cs" />
+    <Compile Include="Command.cs" />
     <Compile Include="CRT310ResultLengthType.cs" />
     <Compile Include="DeviceState.cs" />
     <Compile Include="DisplayOrientation.cs" />

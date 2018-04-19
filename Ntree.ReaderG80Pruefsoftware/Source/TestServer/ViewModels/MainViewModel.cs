@@ -57,6 +57,7 @@ namespace TestServer.ViewModels
         private string _i2CReadResult = "-";
         private string _i2CWriteReadResult;
         private string _spiResult;
+        private System.Windows.Threading.DispatcherTimer _TimerAliveSignal;
 
         private AutoIOTest _AutoIOTest;
         private AutoReaderTest _AutoReaderTest;
@@ -89,6 +90,20 @@ namespace TestServer.ViewModels
             _AutoIOTest = new AutoIOTest(_protocol, _protocolManager, this);
             _AutoReaderTest = new AutoReaderTest(_protocol, _protocolManager, this);
             _AutoCompleteTest = new AutoCompleteTest(_protocol, _protocolManager, this);
+
+            _TimerAliveSignal = new System.Windows.Threading.DispatcherTimer();
+            _TimerAliveSignal.Tick += _TimerAliveSignal_Tick;
+            _TimerAliveSignal.Interval = new TimeSpan(0, 0, 5);
+            _TimerAliveSignal.Start();
+        }
+
+        private void _TimerAliveSignal_Tick(object sender, EventArgs e)
+        {
+            if (IsConnected)
+            {
+                var cmd = _protocol.CreateSetCommand(0, (byte)Command.AliveSignal);
+                EncryptSendReceiveAck(cmd);
+            }
         }
 
         private void OnProtocol_DeviceStateChanged(object sender, byte readerId, DeviceState state)

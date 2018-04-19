@@ -69,7 +69,7 @@ namespace TestServer.Connection
 
                 _readerTask = new Thread(() =>
                 {
-                    // activate UDP-Tool Connection!!!
+                    // activate UDP-Tool Connection (send alive signal)!!!
                     Send(new byte[2] { 0x01, Shared.Protocol.END });
 
                     while (!_cancellationToken.IsCancellationRequested)

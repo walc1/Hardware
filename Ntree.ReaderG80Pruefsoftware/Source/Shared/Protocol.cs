@@ -38,6 +38,7 @@ namespace Shared
         public delegate void DelegatePortRedirectCRT310(object sender, byte readerId, ushort timeout, CRT310ResultLengthType readLenghtType, byte[] writeData);
         public delegate void DelegatePortRedirectCRT310Answer(object sender, byte readerId, byte[] answer);
         public delegate void DelegateDeviceStateChanged(object sender, byte readerId, DeviceState state);
+        public delegate void DelegateCommandChanged(object sender, byte id, Command command);
         public delegate ProtocolResult DelegateI2CWrite(object sender, byte address, byte[] data);
         public delegate void DelegateI2CRead(object sender, byte address, int length);
         public delegate void DelegateI2CWriteRead(object sender, byte address, byte[] data, int readLength);
@@ -74,6 +75,7 @@ namespace Shared
         public event DelegatePortRedirectCRT310 PortRedirectCRT310;
         public event DelegatePortRedirectCRT310Answer PortRedirectCRT310Answer;
         public event DelegateDeviceStateChanged DeviceStateChanged;
+        public event DelegateCommandChanged CommandChanged;
         public event DelegateByte BacklightChange;
         public event DelegateI2CWrite I2CWriteData;
         public event DelegateI2CRead I2CReadData;
@@ -251,6 +253,10 @@ namespace Shared
                     case CommandType.DeviceState:
                         {
                             return HandleDeviceState(data);
+                        }
+                    case CommandType.Command:
+                        {
+                            return HandleCommand(data);
                         }
                     case CommandType.SystemInfo:
                         {
@@ -578,6 +584,23 @@ namespace Shared
             {
                 DeviceStateChanged(this, readerId, state);
                 return ProtocolResult.AckAck;
+            }
+            return ProtocolResult.EventError;
+        }
+
+        private ProtocolResult HandleCommand(byte[] data)
+        {
+            var id = data[1];
+            if (!CheckDisplayParamter(id, 0, 3, "Id -> Command"))
+            {
+                return ProtocolResult.InvalidParameter;
+            }
+
+            var command = (Command)data[2];
+            if (CommandChanged != null)
+            {
+                CommandChanged(this, id, command);
+                return ProtocolResult.Ack;
             }
             return ProtocolResult.EventError;
         }
@@ -1116,6 +1139,8 @@ namespace Shared
                 case CommandType.RequestMedia:
                     return len >= 1;
                 case CommandType.DeviceState:
+                    return len >= 3;
+                case CommandType.Command:
                     return len >= 3;
                 case CommandType.SystemInfo:
                     return len >= 4;
@@ -1689,6 +1714,15 @@ namespace Shared
             data[0] = (byte)CommandType.DeviceState;
             data[1] = readerId;
             data[2] = state;
+            return data;
+        }
+
+        public byte[] CreateSetCommand(byte readerId, byte command)
+        {
+            var data = new byte[3];
+            data[0] = (byte)CommandType.Command;
+            data[1] = readerId;
+            data[2] = command;
             return data;
         }
 

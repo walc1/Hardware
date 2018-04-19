@@ -48,6 +48,7 @@ namespace Shared
         PortRedirectCRT310 = 0x73,
         PortRedirectCRT310Answer = 0x74,
         DeviceState = 0x75,
+        Command = 0x76,
 
         SystemInfo = 0x80,
         RequestSystemInfo = 0x81,
