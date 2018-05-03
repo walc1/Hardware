@@ -10,6 +10,7 @@ namespace Shared
         private readonly ILogger _logger;
         private readonly ushort _displayWidth;
         private readonly ushort _displayHeight;
+        private Version _readerVersion;
         public const int FILE_BUFFER_SIZE = 256;
         public const byte END = 0x03;
         public const byte BACKLIGHT_ON = 0x7F;
@@ -92,6 +93,11 @@ namespace Shared
             _logger = logger;
             _displayWidth = displayWidth;
             _displayHeight = displayHeight;
+        }
+
+        public void SetReaderVersion(Version readerVersion)
+        {
+            _readerVersion = readerVersion;
         }
 
         public ProtocolResult Parse(byte[] data, out byte index, out byte[] resultData)
@@ -983,7 +989,16 @@ namespace Shared
             if (InputChanged != null)
             {
                 InputChanged(this, result);
-                return ProtocolResult.Ack;
+
+                if (_readerVersion != null)
+                {
+                    if (_readerVersion.ToString() == "1.0.0.1" || _readerVersion.ToString() == "1.0.0.2")
+                    {
+                        return ProtocolResult.Ack;
+                    }
+                }
+
+                return ProtocolResult.None;
             }
             return ProtocolResult.EventError;
         }

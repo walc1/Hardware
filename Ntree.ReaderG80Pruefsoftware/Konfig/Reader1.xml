@@ -10,7 +10,7 @@
 	<MessageLength>25</MessageLength>
 	<ISO15693>True</ISO15693>
 	<ISO14443A>True</ISO14443A>
-	<ISO14443B>False</ISO14443B>
+	<ISO14443B>True</ISO14443B>
 	<Jewel>False</Jewel>
 	<MifareStandard>True</MifareStandard>
 	<MYDProximity>False</MYDProximity>
