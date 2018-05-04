@@ -1,0 +1,8 @@
+V1.0.0.21
+fix: scroll function 
+modify: input without Ack
+add: alive signal
+
+V1.0.0.2
+fix: startup and reboot
+add: reader device state
