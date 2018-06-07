@@ -114,7 +114,7 @@ namespace TestServer.ViewModels
         private void _protocol_MediaRead(object sender, byte readerId, byte[] cardData)
         {
             // Validate data
-            var regexItem = new Regex("^[a-fA-F0-9]+$");
+            var regexItem = new Regex("^[-sa-fA-F0-9]+$");
             var dataAsString = Encoding.UTF8.GetString(cardData);
             dataAsString = dataAsString.Trim('\r', '\n', '\0');
 

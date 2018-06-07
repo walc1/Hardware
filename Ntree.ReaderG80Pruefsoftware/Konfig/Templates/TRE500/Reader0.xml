@@ -1,7 +1,7 @@
 <Reader>
 	<!-- 0 = Request, 1 = Auto, 2 = Redirect, 3 = CPR02HostMode -->
-	<Mode>1</Mode>
-	<PortName>COM4</PortName>
+	<Mode>3</Mode>
+	<PortName>COM2</PortName>
 	<Baudrate>38400</Baudrate>
 	<Parity>0</Parity>
 	<StopBits>1</StopBits>
@@ -10,11 +10,11 @@
 	<MessageLength>25</MessageLength>
 	<ISO15693>True</ISO15693>
 	<ISO14443A>True</ISO14443A>
-	<ISO14443B>False</ISO14443B>
+	<ISO14443B>True</ISO14443B>
 	<Jewel>False</Jewel>
 	<MifareStandard>True</MifareStandard>
 	<MYDProximity>False</MYDProximity>
 	<MifareUltralight>False</MifareUltralight>
 	<Part4>False</Part4>
-	<DoubleReadMS>1000</DoubleReadMS>
+	<DoubleReadMS>500</DoubleReadMS>
 </Reader>
