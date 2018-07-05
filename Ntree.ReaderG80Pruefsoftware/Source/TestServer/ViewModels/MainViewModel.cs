@@ -118,7 +118,7 @@ namespace TestServer.ViewModels
             var dataAsString = Encoding.UTF8.GetString(cardData);
             dataAsString = dataAsString.Trim('\r', '\n', '\0');
 
-            // ToDo: Check length
+            // ToDo: Check länge
 
             if (!regexItem.IsMatch(dataAsString))
             {
