@@ -19,6 +19,7 @@ namespace Shared
         public delegate void DelegateSenderOnly(object sender);
         public delegate void DelegateByte(object sender, byte id);
         public delegate void DelegateMediaRead(object sender, byte readerId, byte[] cardData);
+        public delegate void DelegateMediaReadSector(object sender, byte readerId, byte[] cardData, SectorData[] sectorData);
         public delegate void DelegateRelay(object sender, Relay[] relais);
         public delegate void DelegateInput(object sender, bool[] inputStates);
         public delegate void DelegateBoolean(object sender, bool state);
@@ -37,7 +38,7 @@ namespace Shared
         public delegate void DelegateFileList(object sender, string[] files);
         public delegate void DelegatePortRedirect(object sender, byte readerId, ushort timeout, ushort readLenght, byte[] writeData);
         public delegate void DelegatePortRedirectCRT310(object sender, byte readerId, ushort timeout, CRT310ResultLengthType readLenghtType, byte[] writeData);
-        public delegate void DelegatePortRedirectCRT310Answer(object sender, byte readerId, byte[] answer);
+        public delegate void DelegatePortRedirectAnswer(object sender, byte readerId, byte[] answer);
         public delegate void DelegateDeviceStateChanged(object sender, byte readerId, DeviceState state);
         public delegate void DelegateCommandChanged(object sender, byte id, Command command);
         public delegate ProtocolResult DelegateI2CWrite(object sender, byte address, byte[] data);
@@ -46,6 +47,7 @@ namespace Shared
         public delegate void DelegateSpiWriteRead(object sender, SpiChipSelect cs, SpiSpeed speed, bool csActiveState, bool clockIdle, bool clockEdge, byte[] data);
 
         public event DelegateMediaRead MediaRead;
+        public event DelegateMediaReadSector MediaReadSector;
         public event DelegateByte RequestMediaRead;
         public event DelegateRelay SwitchRelais;
         public event DelegateBeeper ActivateBeeper;
@@ -74,7 +76,7 @@ namespace Shared
         public event DelegateSystemInfo SystemInfoChanged;
         public event DelegatePortRedirect PortRedirect;
         public event DelegatePortRedirectCRT310 PortRedirectCRT310;
-        public event DelegatePortRedirectCRT310Answer PortRedirectCRT310Answer;
+        public event DelegatePortRedirectAnswer PortRedirectAnswer;
         public event DelegateDeviceStateChanged DeviceStateChanged;
         public event DelegateCommandChanged CommandChanged;
         public event DelegateByte BacklightChange;
@@ -244,13 +246,17 @@ namespace Shared
                         {
                             return HandlePortRedirectCRT310(data);
                         }
-                    case CommandType.PortRedirectCRT310Answer:
+                    case CommandType.PortRedirectAnswer:
                         {
-                            return HandlePortRedirectCRT310Answer(data);
+                            return HandlePortRedirectAnswer(data);
                         }
                     case CommandType.ReadMedia:
                         {
                             return HandleReadMedia(data);
+                        }
+                    case CommandType.ReadMediaSector:
+                        {
+                            return HandleReadMediaSector(data);
                         }
                     case CommandType.RequestMedia:
                         {
@@ -514,6 +520,59 @@ namespace Shared
             return ProtocolResult.EventError;
         }
 
+        private ProtocolResult HandleReadMediaSector(byte[] data)
+        {
+            var readerId = data[1];
+            if (!CheckDisplayParamter(readerId, 1, 3, "ReaderId -> ReadMedia"))
+            {
+                return ProtocolResult.InvalidParameter;
+            }
+
+            // get CardId
+            var lengthCardId = data[2] + (data[3] << 8);
+            var cardId = new byte[lengthCardId];
+            Array.Copy(data, 4, cardId, 0, lengthCardId);
+
+            // get Sector(s)
+            var countOfSectors = data[4 + lengthCardId];
+            var lengthAllSectors = data[5 + lengthCardId] + (data[6 + lengthCardId] << 8);
+
+            SectorData[] sectorDataArray = null;
+            if (countOfSectors > 0)
+            {
+                sectorDataArray = new SectorData[countOfSectors];
+
+                int idxOffset = 7 + lengthCardId;
+
+                for (int i = 0; i < countOfSectors; i++)
+                {
+                    SectorData sectorItem = new SectorData();
+                    sectorItem.State = data[idxOffset]; // State
+                    idxOffset++;
+                    sectorItem.Type = data[idxOffset]; // Type
+                    idxOffset++;
+                    sectorItem.SectorNr = data[idxOffset]; // SectorNr
+                    idxOffset++;
+
+                    var lengthSector = data[idxOffset] + (data[idxOffset + 1] << 8); // Länge LSB & MSB
+                    idxOffset += 2;
+
+                    sectorItem.Data = new byte[lengthSector];
+                    Array.Copy(data, idxOffset, sectorItem.Data, 0, lengthSector);
+                    idxOffset += lengthSector;
+
+                    sectorDataArray[i] = sectorItem;
+                }
+            }
+
+            if (MediaReadSector != null)
+            {
+                MediaReadSector(this, readerId, cardId, sectorDataArray);
+                return ProtocolResult.AckAck;
+            }
+            return ProtocolResult.EventError;
+        }
+
         private ProtocolResult HandlePortRedirect(byte[] data)
         {
             var readerId = data[1];
@@ -558,10 +617,10 @@ namespace Shared
             return ProtocolResult.EventError;
         }
 
-        private ProtocolResult HandlePortRedirectCRT310Answer(byte[] data)
+        private ProtocolResult HandlePortRedirectAnswer(byte[] data)
         {
             var readerId = data[1];
-            if (!CheckDisplayParamter(readerId, 1, 3, "ReaderId -> PortRedirectCRT310Answer"))
+            if (!CheckDisplayParamter(readerId, 1, 3, "ReaderId -> PortRedirectAnswer"))
             {
                 return ProtocolResult.InvalidParameter;
             }
@@ -569,9 +628,9 @@ namespace Shared
             var length = data[2] + (data[3] << 8);
             var answer = new byte[length];
             Array.Copy(data, 4, answer, 0, length);
-            if (PortRedirectCRT310Answer != null)
+            if (PortRedirectAnswer != null)
             {
-                PortRedirectCRT310Answer(this, readerId, answer);
+                PortRedirectAnswer(this, readerId, answer);
                 return ProtocolResult.AckAck;
             }
             return ProtocolResult.EventError;
@@ -1061,6 +1120,7 @@ namespace Shared
             {
                 relais[i] = new Relay(i, (data[1] & Pow(2, i)) > 0);
             }
+
             if (SwitchRelais != null)
             {
                 SwitchRelais(this, relais);
@@ -1147,10 +1207,12 @@ namespace Shared
                     return len > 7 && len >= 7 + data[4] + (data[5] << 8);
                 case CommandType.PortRedirectCRT310:
                     return len > 6 && len >= 6 + data[4] + (data[5] << 8);
-                case CommandType.PortRedirectCRT310Answer:
+                case CommandType.PortRedirectAnswer:
                     return len > 3 && len >= 3 + data[2] + (data[3] << 8);
                 case CommandType.ReadMedia:
                     return len > 3 && len >= 3 + data[2] + (data[3] << 8);
+                case CommandType.ReadMediaSector:
+                    return len > 3 && len >= 3 + data[2] + (data[3] << 8) + 5;
                 case CommandType.RequestMedia:
                     return len >= 1;
                 case CommandType.DeviceState:
@@ -1675,6 +1737,62 @@ namespace Shared
             return data;
         }
 
+        public byte[] CreateReadMediaSectorCommand(byte readerId, byte[] cardId, SectorData[] sectorData)
+        {
+            var totalSectorDataLength = 0;
+            if (sectorData != null && sectorData.Length > 0)
+            {
+                // validate - sectorData can not be null
+                for (int i = 0; i < sectorData.Length; i++)
+                {
+                    if (sectorData[i].Data == null)
+                    {
+                        sectorData[i].Data = new byte[] { 0x00 };
+                    }
+                    totalSectorDataLength += 5; // State, Type, SectorNr, länge LSB länge MSB
+                    totalSectorDataLength += sectorData[i].Data.Length; // Sector Daten
+                }
+            }
+
+            var data = new byte[7 + cardId.Length + totalSectorDataLength];
+            data[0] = (byte)CommandType.ReadMediaSector;
+            data[1] = readerId;
+            data[2] = (byte)cardId.Length;
+            data[3] = (byte)(cardId.Length >> 8);
+            Array.Copy(cardId, 0, data, 4, cardId.Length);
+
+            if (sectorData != null && sectorData.Length > 0)
+            {
+                // count sector
+                data[4 + cardId.Length] = (byte)sectorData.Length;
+
+                // length of sector data
+                data[5 + cardId.Length] = (byte)totalSectorDataLength;
+                data[6 + cardId.Length] = (byte)(totalSectorDataLength >> 8);
+
+                // set sector data
+                var idxOffset = 7 + cardId.Length;
+                for (int i = 0; i < sectorData.Length; i++)
+                {
+                    data[idxOffset] = sectorData[i].State; // State
+                    idxOffset++;
+                    data[idxOffset] = sectorData[i].Type; // Type
+                    idxOffset++;
+                    data[idxOffset] = sectorData[i].SectorNr; // SectorNr
+                    idxOffset++;
+                    data[idxOffset] = (byte)sectorData[i].Data.Length; // Länge LSB
+                    idxOffset++;
+                    data[idxOffset] = (byte)(sectorData[i].Data.Length >> 8); // Länge MSB
+                    idxOffset++;
+
+                    Array.Copy(sectorData[i].Data, 0, data, idxOffset, sectorData[i].Data.Length);
+                    idxOffset += sectorData[i].Data.Length;
+                }
+            }
+
+            return data;
+        }
+
         public byte[] CreateRequestMediaReadCommand(byte readerId)
         {
             var data = new byte[2];
@@ -1712,10 +1830,10 @@ namespace Shared
             return data;
         }
 
-        public byte[] CreatePortRedirectCRT310AnswerCommand(byte readerId, byte[] answer)
+        public byte[] CreatePortRedirectAnswerCommand(byte readerId, byte[] answer)
         {
             var data = new byte[4 + answer.Length];
-            data[0] = (byte)CommandType.PortRedirectCRT310Answer;
+            data[0] = (byte)CommandType.PortRedirectAnswer;
             data[1] = readerId;
             data[2] = (byte)answer.Length;
             data[3] = (byte)(answer.Length >> 8);

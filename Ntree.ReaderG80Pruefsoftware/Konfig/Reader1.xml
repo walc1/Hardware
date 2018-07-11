@@ -17,6 +17,6 @@
 	<MifareUltralight>False</MifareUltralight>
 	<Part4>False</Part4>
 	<DoubleReadMS>1000</DoubleReadMS>
-	<SectorNr>1</SectorNr>
-	<SectorType>Ntree</SectorType>
+	<SectorNr>1;3</SectorNr>
+	<SectorType>Ojmar;Ntree</SectorType>
 </Reader>

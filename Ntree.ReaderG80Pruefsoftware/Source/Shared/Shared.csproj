@@ -59,6 +59,7 @@
     <Compile Include="ReaderMode.cs" />
     <Compile Include="RectangleInfo.cs" />
     <Compile Include="Relais.cs" />
+    <Compile Include="SectorData.cs" />
     <Compile Include="SpiChipSelect.cs" />
     <Compile Include="SpiSpeed.cs" />
   </ItemGroup>

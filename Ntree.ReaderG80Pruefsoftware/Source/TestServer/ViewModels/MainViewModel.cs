@@ -79,6 +79,7 @@ namespace TestServer.ViewModels
             _protocol.SystemInfoChanged += OnSystemInfoChanged;
             //_protocol.MediaRead += (sender, id, data) => ReadMedia = $"Id: {id} -> Card: {Encoding.UTF8.GetString(data)}";
             _protocol.MediaRead += _protocol_MediaRead;
+            _protocol.MediaReadSector += _protocol_MediaReadSector;
             _protocol.DeviceStateChanged += OnProtocol_DeviceStateChanged;
 
             TerminalTime = "--:--:--";
@@ -101,7 +102,7 @@ namespace TestServer.ViewModels
         {
             if (IsConnected)
             {
-                var cmd = _protocol.CreateSetCommand(0, (byte)Command.AliveSignal);
+                var cmd = _protocol.CreateSetCommand(0, (byte)Command.ReaderToolAliveSignal); // AliveSignal);
                 EncryptSendReceiveAck(cmd);
             }
         }
@@ -109,6 +110,11 @@ namespace TestServer.ViewModels
         private void OnProtocol_DeviceStateChanged(object sender, byte readerId, DeviceState state)
         {
             //throw new NotImplementedException();
+        }
+
+        private void _protocol_MediaReadSector(object sender, byte readerId, byte[] cardData, SectorData[] sectorData)
+        {
+            _protocol_MediaRead(sender, readerId, cardData);
         }
 
         private void _protocol_MediaRead(object sender, byte readerId, byte[] cardData)

@@ -17,4 +17,6 @@
 	<MifareUltralight>False</MifareUltralight>
 	<Part4>False</Part4>
 	<DoubleReadMS>500</DoubleReadMS>
+	<SectorNr></SectorNr>
+	<SectorType></SectorType>
 </Reader>

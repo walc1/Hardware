@@ -1,3 +1,6 @@
+V1.0.0.5
+new: add reading sectors for Ojmar & Ntree 
+
 V1.0.0.21
 fix: scroll function 
 modify: input without Ack
