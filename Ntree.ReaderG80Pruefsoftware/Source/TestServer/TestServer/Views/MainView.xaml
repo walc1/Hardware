@@ -1,0 +1,485 @@
+﻿<UserControl x:Class="TestServer.Views.MainView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:TestServer.ViewModels"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
+             d:DesignWidth="1200" d:DesignHeight="800">
+    <DockPanel>
+        <!--<GroupBox Header="Log" DockPanel.Dock="Bottom" MinHeight="200">
+            <ScrollViewer>
+                <TextBlock VerticalAlignment="Top" TextWrapping="NoWrap" Text="{Binding LogText, Mode=OneWay}" DockPanel.Dock="Bottom"/>
+            </ScrollViewer>
+        </GroupBox>-->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel>
+                    <GroupBox Header="Connection">
+                        <StackPanel>
+                            <StackPanel>
+                                <Button x:Name="Connect" Visibility="{Binding IsConnected, Converter={StaticResource FalseToVisible}}">Connect</Button>
+                                <Button x:Name="Disconnect" Visibility="{Binding IsConnected, Converter={StaticResource TrueToVisible}}">Disconnect</Button>
+                            </StackPanel>
+                            <Button x:Name="SendBroadcast" Margin="5,3,435.2,3">Send Broadcast</Button>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+                <GroupBox Grid.Row="1" Header="IOs" IsEnabled="{Binding IsConnected}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="3">
+                            <TextBlock>Set relay state:</TextBlock>
+                            <CheckBox IsChecked="{Binding RelaisStates[0]}">1</CheckBox>
+                            <CheckBox IsChecked="{Binding RelaisStates[1]}">2</CheckBox>
+                            <CheckBox IsChecked="{Binding RelaisStates[2]}">3</CheckBox>
+                            <CheckBox IsChecked="{Binding RelaisStates[3]}">4</CheckBox>
+                            <CheckBox IsChecked="{Binding RelaisStates[4]}">5</CheckBox>
+                            <CheckBox IsChecked="{Binding RelaisStates[5]}">6</CheckBox>
+                            <CheckBox IsChecked="{Binding RelaisStates[6]}">7</CheckBox>
+                            <Button x:Name="SendRelais">Send</Button>
+                        </StackPanel>
+                        <DockPanel Margin="3">
+                            <TextBlock DockPanel.Dock="Left">Set relay for time (s):</TextBlock>
+                            <TextBox DockPanel.Dock="Left" Text="{Binding RelaisTime, StringFormat={}{0:F1}}" MinWidth="40" />
+                            <WrapPanel>
+                                <Button x:Name="SendTimeRelais1">Relay 1</Button>
+                                <Button x:Name="SendTimeRelais2">Relay 2</Button>
+                                <Button x:Name="SendTimeRelais3">Relay 3</Button>
+                                <Button x:Name="SendTimeRelais4">Relay 4</Button>
+                                <Button x:Name="SendTimeRelais5">Relay 5</Button>
+                                <Button x:Name="SendTimeRelais6">Relay 6</Button>
+                                <Button x:Name="SendTimeRelais7">Relay 7</Button>
+                            </WrapPanel>
+                        </DockPanel>
+                        <StackPanel Orientation="Horizontal" Margin="3">
+                            <TextBlock>Enable beeper for time (s):</TextBlock>
+                            <TextBox Text="{Binding BeeperTime, StringFormat={}{0:F1}}" MinWidth="40" />
+                            <Button x:Name="SendBeeper">Beeper</Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="3">
+                            <TextBlock>Inputs:</TextBlock>
+                            <CheckBox IsChecked="{Binding InputState1}" IsEnabled="False">1</CheckBox>
+                            <CheckBox IsChecked="{Binding InputState2}" IsEnabled="False">2</CheckBox>
+                            <CheckBox IsChecked="{Binding InputState3}" IsEnabled="False">3</CheckBox>
+                            <CheckBox IsChecked="{Binding InputState4}" IsEnabled="False">4</CheckBox>
+                            <Button x:Name="ReadInputs">Read Inputs</Button>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Grid.Row="2" Header="Reader/PortRedirect" IsEnabled="{Binding IsConnected}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0">Read Media:</TextBlock>
+                            <TextBlock Grid.Column="1" Text="{Binding ReadMedia}" Foreground="Blue" FontWeight="Bold" MinWidth="250"/>
+                            <Button Grid.Column="2" x:Name="ClearReadMedia" >Clear</Button>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock >Request Media:</TextBlock>
+                            <ComboBox ItemsSource="{Binding IndexThree}" SelectedItem="{Binding MediaRequestIndex}" />
+                            <Button x:Name="RequestReadMedia" >Request Media</Button>
+                        </StackPanel>
+                        <Grid >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock>Reader Id</TextBlock>
+                            <TextBlock Grid.Column="1">Timeout</TextBlock>
+                            <TextBlock Grid.Column="2">ReadLength</TextBlock>
+                            <TextBlock Grid.Column="3">Write</TextBlock>
+                            <ComboBox Grid.Row="1" ItemsSource="{Binding IndexThree}" SelectedItem="{Binding PortRedirectIndex}" />
+                            <TextBox Grid.Column="1"  Grid.Row="1" Text="{Binding PortRedirectTimeout}" MinWidth="50"></TextBox>
+                            <TextBox Grid.Column="2"  Grid.Row="1" Text="{Binding PortRedirectReadLength}" MinWidth="50"></TextBox>
+                            <TextBox Grid.Column="3" Grid.Row="1"  Text="{Binding PortRedirectWriteData}" MinWidth="50"></TextBox>
+                            <Button Grid.Column="4" Grid.Row="1" x:Name="PortRedirect" >Send</Button>
+                        </Grid>
+                    </StackPanel>
+
+                </GroupBox>
+                <GroupBox Grid.Row="3" Header="File Handling" IsEnabled="{Binding IsConnected}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <ListBox ItemsSource="{Binding TerminaFiles}" SelectedItem="{Binding SelectedFile}" />
+                        <StackPanel Grid.Column="1">
+                            <Button x:Name="ReadFileList">Read Filelist</Button>
+                            <Button x:Name="ReadFile">Read selected</Button>
+                            <Button x:Name="SendFile">Send File</Button>
+                            <Button x:Name="DeleteFile" Margin="3,15">Delete selected</Button>
+                        </StackPanel>
+                    </Grid>
+
+                </GroupBox>
+                <GroupBox Grid.Row="4" Header="Log" Height="200">
+                    <ScrollViewer>
+                        <!--<ListBox Margin="0" ItemsSource="{Binding LogList}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Path=Message}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>-->
+                        <TextBlock VerticalAlignment="Top" TextWrapping="NoWrap" Text="{Binding LogText, Mode=OneWay}" />
+                    </ScrollViewer>
+                </GroupBox>
+            </Grid>
+            <Grid Grid.Column="1" IsEnabled="{Binding IsConnected}">
+                <TabControl Background="Transparent" Margin="3">
+                    <TabItem Header="Display">
+                        <GroupBox Header="Display">
+                            <StackPanel>
+                                <GroupBox Header="Text">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0">Index</TextBlock>
+                                        <TextBlock Grid.Column="1">X-Pos</TextBlock>
+                                        <TextBlock Grid.Column="2">Y-Pos</TextBlock>
+                                        <TextBlock Grid.Column="3">Size</TextBlock>
+                                        <TextBlock Grid.Column="4">Color</TextBlock>
+                                        <TextBlock Grid.Column="5">Text</TextBlock>
+                                        <ComboBox Grid.Column="0" Grid.Row="1" ItemsSource="{Binding IndexTwenty}" SelectedItem="{Binding TextIndex}" />
+                                        <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding TextPosX}" />
+                                        <TextBox Grid.Column="2" Grid.Row="1" Text="{Binding TextPosY}" />
+                                        <ComboBox Grid.Column="3" Grid.Row="1" ItemsSource="{Binding TextSizes}" SelectedItem="{Binding TextSize}" />
+                                        <xctk:ColorPicker Grid.Column="4" Grid.Row="1" SelectedColor="{Binding TextColor, Mode=TwoWay}"/>
+                                        <TextBox Grid.Column="5" Grid.Row="1" Text="{Binding Text}" MinWidth="120" MaxLength="127"/>
+                                        <Button Grid.Column="6" Grid.Row="1" x:Name="SendText">Send</Button>
+                                        <Button Grid.Column="7" Grid.Row="1" x:Name="DeleteText">Del.</Button>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox Header="Button">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0">Index</TextBlock>
+                                        <TextBlock Grid.Column="1">X-Pos</TextBlock>
+                                        <TextBlock Grid.Column="2">Y-Pos</TextBlock>
+                                        <TextBlock Grid.Column="3">Width</TextBlock>
+                                        <TextBlock Grid.Column="4">Height</TextBlock>
+                                        <TextBlock Grid.Column="5">Size</TextBlock>
+                                        <TextBlock Grid.Column="6">Color</TextBlock>
+                                        <TextBlock Grid.Column="7">Back</TextBlock>
+                                        <TextBlock Grid.Column="8">Text</TextBlock>
+                                        <ComboBox Grid.Column="0" Grid.Row="1" ItemsSource="{Binding IndexTen}" SelectedItem="{Binding ButtonIndex}" />
+                                        <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding ButtonPosX}" />
+                                        <TextBox Grid.Column="2" Grid.Row="1" Text="{Binding ButtonPosY}" />
+                                        <TextBox Grid.Column="3" Grid.Row="1" Text="{Binding ButtonWidth}" />
+                                        <TextBox Grid.Column="4" Grid.Row="1" Text="{Binding ButtonHeight}" />
+                                        <ComboBox Grid.Column="5" Grid.Row="1" ItemsSource="{Binding TextSizes}" SelectedItem="{Binding ButtonTextSize}" />
+                                        <xctk:ColorPicker Grid.Column="6" Grid.Row="1" SelectedColor="{Binding ButtonTextColor}"/>
+                                        <xctk:ColorPicker Grid.Column="7" Grid.Row="1" SelectedColor="{Binding ButtonBackColor}" />
+                                        <TextBox Grid.Column="8" Grid.Row="1" Text="{Binding ButtonText}" MinWidth="120" MaxLength="127"/>
+                                        <Button Grid.Column="9" Grid.Row="1" x:Name="SendButton">Send</Button>
+                                        <Button Grid.Column="10" Grid.Row="1" x:Name="DeleteButton">Del.</Button>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox Header="Rectangle">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0">Index</TextBlock>
+                                        <TextBlock Grid.Column="1">X-Pos</TextBlock>
+                                        <TextBlock Grid.Column="2">Y-Pos</TextBlock>
+                                        <TextBlock Grid.Column="3">Width</TextBlock>
+                                        <TextBlock Grid.Column="4">Height</TextBlock>
+                                        <TextBlock Grid.Column="5">Color</TextBlock>
+                                        <ComboBox Grid.Column="0" Grid.Row="1" ItemsSource="{Binding IndexTen}" SelectedItem="{Binding RectangleIndex}" />
+                                        <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding RectanglePosX}" />
+                                        <TextBox Grid.Column="2" Grid.Row="1" Text="{Binding RectanglePosY}" />
+                                        <TextBox Grid.Column="3" Grid.Row="1" Text="{Binding RectangleWidth}" />
+                                        <TextBox Grid.Column="4" Grid.Row="1" Text="{Binding RectangleHeight}" />
+                                        <xctk:ColorPicker Grid.Column="5" Grid.Row="1" SelectedColor="{Binding RectangleColor}"/>
+                                        <Button Grid.Column="6" Grid.Row="1" x:Name="SendRectangle">Send</Button>
+                                        <Button Grid.Column="7" Grid.Row="1" x:Name="DeleteRectangle">Del.</Button>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox Header="Line">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0">Index</TextBlock>
+                                        <TextBlock Grid.Column="1">X1-Pos</TextBlock>
+                                        <TextBlock Grid.Column="2">Y1-Pos</TextBlock>
+                                        <TextBlock Grid.Column="3">X2-Pos</TextBlock>
+                                        <TextBlock Grid.Column="4">X2-Pos</TextBlock>
+                                        <TextBlock Grid.Column="5">Width</TextBlock>
+                                        <TextBlock Grid.Column="6">Color</TextBlock>
+                                        <ComboBox Grid.Column="0" Grid.Row="1" ItemsSource="{Binding IndexTen}" SelectedItem="{Binding LineIndex}" />
+                                        <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding LinePosX1}" />
+                                        <TextBox Grid.Column="2" Grid.Row="1" Text="{Binding LinePosY1}" />
+                                        <TextBox Grid.Column="3" Grid.Row="1" Text="{Binding LinePosX2}" />
+                                        <TextBox Grid.Column="4" Grid.Row="1" Text="{Binding LinePosY2}" />
+                                        <TextBox Grid.Column="5" Grid.Row="1" Text="{Binding LineWidth}" />
+                                        <xctk:ColorPicker Grid.Column="6" Grid.Row="1" SelectedColor="{Binding LineColor}" />
+                                        <Button Grid.Column="7" Grid.Row="1" x:Name="SendLine">Send</Button>
+                                        <Button Grid.Column="8" Grid.Row="1" x:Name="DeleteLine">Del.</Button>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox Header="Image">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto" MinWidth="250"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0">Index</TextBlock>
+                                        <TextBlock Grid.Column="1">X-Pos</TextBlock>
+                                        <TextBlock Grid.Column="2">Y-Pos</TextBlock>
+                                        <TextBlock Grid.Column="3">Image</TextBlock>
+                                        <ComboBox Grid.Column="0" Grid.Row="1" ItemsSource="{Binding IndexTen}" SelectedItem="{Binding ImageIndex}" />
+                                        <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding ImagePosX}" />
+                                        <TextBox Grid.Column="2" Grid.Row="1" Text="{Binding ImagePosY}" />
+                                        <ComboBox Grid.Column="3" Grid.Row="1" ItemsSource="{Binding ImageFiles}" SelectedItem="{Binding ImageFile}"/>
+                                        <Button Grid.Column="4" Grid.Row="1" x:Name="SendImage">Send</Button>
+                                        <Button Grid.Column="5" Grid.Row="1" x:Name="DeleteImage">Del.</Button>
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox Header="Commands">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock>Backlight:</TextBlock>
+                                            <Slider Maximum="127" Value="{Binding BacklightValue}" Orientation="Horizontal" MinWidth="100" ToolTip="{Binding BacklightValue}" VerticalAlignment="Center" Margin="3,3,30,3"/>
+                                        </StackPanel>
+                                        <DockPanel>
+                                            <xctk:ColorPicker DockPanel.Dock="Left" SelectedColor="{Binding DisplayBackColor}"/>
+                                            <Button x:Name="SendClear" >Clear Display</Button>
+                                        </DockPanel>
+                                        <Button x:Name="SendInvalidate">Invalidate Display</Button>
+                                    </StackPanel>
+                                </GroupBox>
+                                <GroupBox Header="TouchButton">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock>Touch Button:</TextBlock>
+                                        <TextBlock Text="{Binding TouchButtonId}" Foreground="Red" FontWeight="Bold" MinWidth="50"/>
+                                        <Button x:Name="ReadTouchButtons" >Read</Button>
+                                    </StackPanel>
+                                </GroupBox>
+                            </StackPanel>
+                        </GroupBox>
+                    </TabItem>
+                    <TabItem Header="Various">
+                        <StackPanel>
+
+                            <GroupBox  Header="I2C" IsEnabled="{Binding IsConnected}">
+                                <StackPanel>
+                                    <GroupBox Header="Read">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Addr:" />
+                                                <TextBox Text="{Binding I2CReadAddr}" MinWidth="50"/>
+                                                <TextBlock Text="Length:" />
+                                                <TextBox Text="{Binding I2CReadLength}" MinWidth="50"/>
+                                                <Button x:Name="ReadI2C" Width="80">Read</Button>
+                                            </StackPanel>
+                                            <DockPanel>
+                                                <TextBlock DockPanel.Dock="Left">Result:</TextBlock>
+                                                <TextBox Text="{Binding I2CReadResult}" IsReadOnly="True" HorizontalAlignment="Stretch" />
+                                            </DockPanel>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <GroupBox Header="Write">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Addr:" />
+                                            <TextBox Text="{Binding I2CWriteAddr}" MinWidth="50"/>
+                                            <TextBlock Text="Data:" />
+                                            <TextBox Text="{Binding I2CWriteData}" MinWidth="200"/>
+                                            <Button x:Name="WriteI2C" Width="80">Write</Button>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <GroupBox Header="Write/Read">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Addr:" />
+                                                <TextBox Text="{Binding I2CWriteReadAddr}" MinWidth="50"/>
+                                                <TextBlock Text="Data:" />
+                                                <TextBox Text="{Binding I2CWriteReadData}" MinWidth="200"/>
+                                                <TextBlock Text="Readlength:" />
+                                                <TextBox Text="{Binding I2CWriteReadLength}" MinWidth="50"/>
+                                                <Button x:Name="WriteReadI2C" Width="80">SendReseice</Button>
+                                            </StackPanel>
+                                            <DockPanel>
+                                                <TextBlock DockPanel.Dock="Left">Result:</TextBlock>
+                                                <TextBox Text="{Binding I2CWriteReadResult}" IsReadOnly="True" HorizontalAlignment="Stretch" />
+                                            </DockPanel>
+                                        </StackPanel>
+                                    </GroupBox>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox  Header="SPI" IsEnabled="{Binding IsConnected}">
+                                <GroupBox Header="Write/Read">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Cs" />
+                                            <ComboBox ItemsSource="{Binding SpiChipSelects}" SelectedItem="{Binding SpiChipSelect}" />
+                                            <TextBlock Text="Speed" />
+                                            <ComboBox ItemsSource="{Binding SpiSpeeds}" SelectedItem="{Binding SpiSpeed}" />
+                                            <CheckBox IsChecked="{Binding SpiChipselectActiveState}">Cs Active</CheckBox>
+                                            <CheckBox IsChecked="{Binding SpiClockEdge}">Clock Edge</CheckBox>
+                                            <CheckBox IsChecked="{Binding SpiClockIdle}">Clock Idle</CheckBox>
+                                        </StackPanel>
+                                        <DockPanel>
+                                            <Button x:Name="WriteReadSpi" Width="80" DockPanel.Dock="Right">SendReceice</Button>
+                                            <TextBlock Text="Data:" />
+                                            <TextBox Text="{Binding SpiData}" MinWidth="200"/>
+                                        </DockPanel>
+                                        <DockPanel>
+                                            <TextBlock DockPanel.Dock="Left">Result:</TextBlock>
+                                            <TextBox Text="{Binding SpiResult}" IsReadOnly="True" HorizontalAlignment="Stretch" />
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                            </GroupBox>
+                            <GroupBox  Header="Various" IsEnabled="{Binding IsConnected}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="SetTime" Width="80">Set Time</Button>
+                                        <Button x:Name="ReadTime" Width="80">Read Time</Button>
+                                        <TextBlock Text="Terminal Time:" />
+                                        <TextBlock Text="{Binding TerminalTime}" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="ReadSystemInfo" Width="166">Read SystemInfo</Button>
+                                        <TextBlock Text="Version:" />
+                                        <TextBlock Text="{Binding TerminalVersion}" />
+                                        <TextBlock Text="MAC:" Margin="10,3"/>
+                                        <TextBlock Text="{Binding TerminalMacAddress}" />
+                                    </StackPanel>
+                                    <Button x:Name="SendReboot">Reboot Terminal</Button>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </TabItem>
+
+                    <TabItem Header="Auto Test">
+                        <StackPanel>
+                            <GroupBox  Header="Output/Input" IsEnabled="{Binding IsConnected}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="Auto_StartIOTest" Width="80">Start</Button>
+                                        <Button x:Name="Auto_StopIOTest" Width="80">Stop</Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+
+                            <GroupBox Header="Simulation" IsEnabled="{Binding IsConnected}">
+                                <StackPanel>
+                                    <ComboBox ItemsSource="{Binding AutoTest_ComPorts}" SelectedItem="{Binding AutoTest_ComPortReader1}" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="Auto_StartStopWriteToReader1" Width="80" Content="{Binding Auto_StartStopWriteToReader1Content, FallbackValue=Start}"></Button>
+                                        <Label>Reader Simulation</Label>
+                                    </StackPanel>
+                                    <Separator></Separator>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="Auto_StartCompleteTest" Width="80" Content="{Binding Auto_StartStopCompleteTestContent, FallbackValue=Start}"></Button>
+                                        <Label>Complete Test</Label>
+                                        <CheckBox IsChecked="{Binding AutoTest_UsePhysicalMedia}">Use physical media</CheckBox>
+                                    </StackPanel>
+                                    <TextBox Text="{Binding Auto_BarcodeToWrite}" MinWidth="250"></TextBox>
+                                </StackPanel>
+                            </GroupBox>
+                            
+                            <GroupBox Header="Error Log" Height="200">
+                                <ScrollViewer>
+                                    <TextBlock VerticalAlignment="Top" TextWrapping="NoWrap" Foreground="Red" Text="{Binding ErrorLogText, Mode=OneWay}"/>
+                                </ScrollViewer>
+                            </GroupBox>
+                        </StackPanel>
+                    </TabItem>
+                    
+                </TabControl>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</UserControl>
+

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E354B9BE-A14E-4108-9880-D986B98457FE}</ProjectGuid>
+    <ProjectGuid>{9DD3FB9B-8ED0-4CD0-8BE2-9198E8A73AC4}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestServer</RootNamespace>
-    <AssemblyName>TestServer</AssemblyName>
+    <RootNamespace>Ntree.ReaderTool.Light</RootNamespace>
+    <AssemblyName>Ntree.ReaderTool.Light</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -100,11 +100,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AutoTest\AutoCompleteTest.cs" />
-    <Compile Include="AutoTest\AutoTestBase.cs" />
-    <Compile Include="AutoTest\AutoReaderTest.cs" />
-    <Compile Include="AutoTest\AutoIOTest.cs" />
-    <Compile Include="AutoTest\TestInstruction.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Connection\SerialConnection.cs" />
     <Compile Include="ColorHelper.cs" />

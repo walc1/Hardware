@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="TestServer.Views.MainView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:TestServer.ViewModels"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
+             d:DesignWidth="500" d:DesignHeight="300">
+    <DockPanel>
+        <Grid>
+            <Grid >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel>
+                    <GroupBox Header="Connection">
+                        <StackPanel>
+                            <StackPanel>
+                                <Button x:Name="Connect" Visibility="{Binding IsConnected, Converter={StaticResource FalseToVisible}}">Connect</Button>
+                                <Button x:Name="Disconnect" Visibility="{Binding IsConnected, Converter={StaticResource TrueToVisible}}">Disconnect</Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+                <GroupBox Grid.Row="3" Header="File Handling" IsEnabled="{Binding IsConnected}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="SetTime" Width="80">Set Time</Button>
+                            <Button x:Name="ReadTime" Width="80">Read Time</Button>
+                            <TextBlock Text="Terminal Time:" />
+                            <TextBlock Text="{Binding TerminalTime}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="ReadSystemInfo" Width="166">Read SystemInfo</Button>
+                            <TextBlock Text="Version:" />
+                            <TextBlock Text="{Binding TerminalVersion}" />
+                            <TextBlock Text="MAC:" Margin="10,3"/>
+                            <TextBlock Text="{Binding TerminalMacAddress}" />
+                        </StackPanel>
+                        <Button x:Name="SendReboot">Reboot Terminal</Button>
+                    </StackPanel>
+
+                </GroupBox>
+
+                <GroupBox Grid.Row="4" Header="Log" Height="200">
+                    <ScrollViewer>
+                        <!--<ListBox Margin="0" ItemsSource="{Binding LogList}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Path=Message}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>-->
+                        <TextBlock VerticalAlignment="Top" TextWrapping="NoWrap" Text="{Binding LogText, Mode=OneWay}" />
+                    </ScrollViewer>
+                </GroupBox>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</UserControl>
+

@@ -1646,6 +1646,20 @@ namespace Shared
             return data;
         }
 
+        public byte[] CreateTimeCommand(DateTime timeNow)
+        {
+            var data = new byte[8];
+            data[0] = (byte)CommandType.Date;
+            data[1] = (byte)timeNow.Day;
+            data[2] = (byte)timeNow.Month;
+            data[3] = (byte)timeNow.Year;
+            data[4] = (byte)(timeNow.Year >> 8);
+            data[5] = (byte)timeNow.Hour;
+            data[6] = (byte)timeNow.Minute;
+            data[7] = (byte)timeNow.Second;
+            return data;
+        }
+
         public byte[] CreateTimeRequestCommand()
         {
             var data = new byte[1];
