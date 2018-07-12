@@ -1,0 +1,25 @@
+<OfflineMsgTemplate>
+	<IdleTextRow1>IHRE KARTE BITTE</IdleTextRow1>
+	<IdleTextRow2>%DATE% %TIME%</IdleTextRow2>
+	
+	<ValidTextRow1>DURCHGANG FREI</ValidTextRow1>
+	<ValidTextRow2></ValidTextRow2>
+	<ValidBeepDurationMs>200</ValidBeepDurationMs>
+	
+	<InvalidTextRow1>KARTE UNGÜLTIG</InvalidTextRow1>
+	<InvalidTextRow2></InvalidTextRow2>
+	<InvalidBeepDurationMs>600</InvalidBeepDurationMs>
+	
+	<MessageTimeoutMs>20000</MessageTimeoutMs>
+	<MessageDurationMs>5000</MessageDurationMs>
+	
+	<DateFormat>dd.MM.yyyy</DateFormat>
+	<TimeFormat>HH:mm</TimeFormat>
+	
+	<SyncTime>True</SyncTime>
+	<TimeServer>at.pool.ntp.org</TimeServer>
+	<TimeZoneOffsetInMin>60</TimeZoneOffsetInMin>
+	<DstStart>Mar lastSun @1</DstStart>
+	<DstEnd>Oct lastSun @1</DstEnd>
+	<DstOffsetInMin>60</DstOffsetInMin>
+</OfflineMsgTemplate>

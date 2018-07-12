@@ -24,7 +24,6 @@ using TestServer.Connection;
 
 namespace TestServer.ViewModels
 {
-
     public class LogItem
     {
         public string Message { get; set; }
