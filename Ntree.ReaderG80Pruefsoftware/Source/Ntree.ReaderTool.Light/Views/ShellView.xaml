@@ -8,7 +8,7 @@
         Title="ReaderTool Light"
         SizeToContent="Height"
         Width="500" 
-        Icon="../handheld_device.ico">
+        Icon="../handheld_device.ico" ResizeMode="NoResize">
     <Grid>
         <ContentControl x:Name="MainViewModel" />
     </Grid>

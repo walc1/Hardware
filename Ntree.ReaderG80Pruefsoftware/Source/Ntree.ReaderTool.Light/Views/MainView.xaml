@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:viewModels="clr-namespace:Ntree.ReaderTool.Light"
+             xmlns:viewModels="clr-namespace:Ntree.ReaderTool.Light.ViewModels"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
@@ -42,8 +42,10 @@
                             <TextBlock Text="{Binding TerminalVersion}" />
                             <TextBlock Text="MAC:" Margin="10,3"/>
                             <TextBlock Text="{Binding TerminalMacAddress}" />
-                        </StackPanel>
-                        <Button x:Name="SendReboot">Reboot Terminal</Button>
+                        </StackPanel>                        
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="SendReboot" Width="166" Background="#ff9999">Reboot Terminal</Button>
+                        </StackPanel>                       
                     </StackPanel>
 
                 </GroupBox>

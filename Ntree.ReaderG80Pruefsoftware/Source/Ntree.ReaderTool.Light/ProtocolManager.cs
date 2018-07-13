@@ -33,7 +33,11 @@ namespace Ntree.ReaderTool.Light
             {
                 var ack = _protocolHelper.DecryptData(answer);
                 var parseRes = _protocol.Parse(ack, out _index, out _resultData);
-                if (parseRes != ProtocolResult.Ack && parseRes != ProtocolResult.None)
+                if (parseRes == ProtocolResult.AckAck)
+                {
+                    ; // nothing to do
+                }
+                else if (parseRes != ProtocolResult.Ack && parseRes != ProtocolResult.None)
                 {
                     AddLog("SendReceive failed: " + parseRes);
                     var nack = _protocol.CreateNack(parseRes);

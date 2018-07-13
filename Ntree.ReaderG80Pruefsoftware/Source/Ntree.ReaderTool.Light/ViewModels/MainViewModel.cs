@@ -136,6 +136,7 @@ namespace Ntree.ReaderTool.Light.ViewModels
         {
             Connection?.Disconnect();
             ShowConnectionView();
+            ClearLog();
         }
 
         public void Disconnect()
@@ -187,16 +188,23 @@ namespace Ntree.ReaderTool.Light.ViewModels
 
         public void SetTime()
         {
-            // Test 
-            var testTime = DateTime.Now.AddMinutes(-20);
-            var cmd = _protocol.CreateTimeCommand(testTime);
-            EncryptSendReceiveAck(cmd);
+            var timeNow = DateTime.Now;
+            var cmd = _protocol.CreateTimeCommand(timeNow);
+            var result = EncryptSendReceiveAck(cmd);
+
+            if (result == ProtocolResult.AckAck)
+            {
+                AddLog($"Set Time to {timeNow.ToString()}");
+            }
         }
 
         public void SendReboot()
         {
             var cmd = _protocol.CreateRebootCommand();
             EncryptSendReceice(cmd);
+
+            ClearLog();
+            AddLog("Call Terminal reboot...");
         }
 
         public void ReadTime()
@@ -223,6 +231,12 @@ namespace Ntree.ReaderTool.Light.ViewModels
 
         private object _LockAddLogg = new object();
         private object _LockAddErrorLogg = new object();
+
+        public void ClearLog()
+        {
+            _logLines.Clear();
+            NotifyOfPropertyChange(nameof(LogText));
+        }
 
         public void AddLog(string text)
         {
