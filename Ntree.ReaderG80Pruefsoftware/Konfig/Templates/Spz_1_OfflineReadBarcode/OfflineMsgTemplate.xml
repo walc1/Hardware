@@ -17,7 +17,7 @@
 	<TimeFormat>HH:mm</TimeFormat>
 	
 	<SyncTime>True</SyncTime>
-	<TimeServer>at.pool.ntp.org</TimeServer>
+	<TimeServer>dk.pool.ntp.org</TimeServer>
 	<TimeZoneOffsetInMin>60</TimeZoneOffsetInMin>
 	<DstStart>Mar lastSun @1</DstStart>
 	<DstEnd>Oct lastSun @1</DstEnd>

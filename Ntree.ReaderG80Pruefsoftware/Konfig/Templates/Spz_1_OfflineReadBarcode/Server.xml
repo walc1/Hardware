@@ -1,14 +1,12 @@
 <Server>
 <!-- PortType 0 = Serial; 1 = Network -->
 <!-- SpzVersion 0 = Default; 1 = Offline BarcodeReader -->
-	<PortType>0</PortType>
-	<Baudrate>57600</Baudrate>
-	<PortName>COM1</PortName>
+	<PortType>1</PortType>
 	<ServerIpAddress>10.85.2.83</ServerIpAddress>
 	<TcpPort>9999</TcpPort>
 	<UdpPort>9998</UdpPort>
 	<IpAddress>10.85.2.199</IpAddress>
 	<SubnetMask>255.255.255.0</SubnetMask>
 	<Gateway>10.85.2.240</Gateway>
-	<SpzVersion>0</SpzVersion>
+	<SpzVersion>1</SpzVersion>
 </Server>

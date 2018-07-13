@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.SerialPort", "Test.Ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ntree.ReaderTool.Light", "Ntree.ReaderTool.Light\Ntree.ReaderTool.Light.csproj", "{9DD3FB9B-8ED0-4CD0-8BE2-9198E8A73AC4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestServer", "TestServer\TestServer.csproj", "{E354B9BE-A14E-4108-9880-D986B98457FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ntree.ReaderTool", "TestServer\Ntree.ReaderTool.csproj", "{E354B9BE-A14E-4108-9880-D986B98457FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
