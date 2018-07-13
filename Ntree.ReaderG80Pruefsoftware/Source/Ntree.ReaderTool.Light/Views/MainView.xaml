@@ -1,9 +1,9 @@
-﻿<UserControl x:Class="TestServer.Views.MainView"
+﻿<UserControl x:Class="Ntree.ReaderTool.Light.Views.MainView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:viewModels="clr-namespace:TestServer.ViewModels"
+             xmlns:viewModels="clr-namespace:Ntree.ReaderTool.Light"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
@@ -28,7 +28,7 @@
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
-                <GroupBox Grid.Row="3" Header="File Handling" IsEnabled="{Binding IsConnected}">
+                <GroupBox Grid.Row="3" Header="Terminal" IsEnabled="{Binding IsConnected}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Button x:Name="SetTime" Width="80">Set Time</Button>
@@ -48,7 +48,7 @@
 
                 </GroupBox>
 
-                <GroupBox Grid.Row="4" Header="Log" Height="200">
+                <GroupBox Grid.Row="4" Header="Log" Height="140">
                     <ScrollViewer>
                         <!--<ListBox Margin="0" ItemsSource="{Binding LogList}">
                             <ListBox.ItemTemplate>

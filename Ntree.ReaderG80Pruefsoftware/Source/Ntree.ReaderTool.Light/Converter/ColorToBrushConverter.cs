@@ -4,7 +4,7 @@ using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
 
-namespace TestServer.Converter
+namespace Ntree.ReaderTool.Light.Converter
 {
     public class ColorToBrushConverter : IValueConverter
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Data;
 
-namespace TestServer.Converter
+namespace Ntree.ReaderTool.Light.Converter
 {
     public abstract class BoolToValueConverter<T> : IValueConverter
     {

@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using Caliburn.Micro;
 
-namespace TestServer.ViewModels
+namespace Ntree.ReaderTool.Light.ViewModels
 {
     class ShellViewModel : Screen
     {
         public ShellViewModel()
         {
-            DisplayName = "n-tree Test Server";
+            DisplayName = "n-tree ReaderTool Light";
             MainViewModel = new MainViewModel();
         }
 

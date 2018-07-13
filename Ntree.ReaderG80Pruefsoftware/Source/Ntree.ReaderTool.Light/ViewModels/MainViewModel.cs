@@ -19,9 +19,8 @@ using Shared;
 using Color = System.Windows.Media.Color;
 using System.Text.RegularExpressions;
 using System.Windows.Data;
-using TestServer.Connection;
 
-namespace TestServer.ViewModels
+namespace Ntree.ReaderTool.Light.ViewModels
 {
     public class LogItem
     {

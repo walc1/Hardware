@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using Caliburn.Micro;
-using TestServer.ViewModels;
+using Ntree.ReaderTool.Light.ViewModels;
 
-namespace TestServer
+namespace Ntree.ReaderTool.Light
 {
     class Bootstrapper : BootstrapperBase
     {

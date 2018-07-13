@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace TestServer.Converter
+namespace Ntree.ReaderTool.Light.Converter
 {
     public class FalseToVisible : BoolToValueConverter<Visibility>
     {

@@ -11,7 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace TestServer.Views
+namespace Ntree.ReaderTool.Light.Views
 {
     /// <summary>
     /// Interaction logic for ShellView.xaml

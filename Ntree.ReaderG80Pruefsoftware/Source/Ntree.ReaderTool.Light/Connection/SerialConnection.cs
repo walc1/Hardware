@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using Shared;
 
-namespace TestServer.Connection
+namespace Ntree.ReaderTool.Light.Connection
 {
     class SerialConnection : IConnection
     {

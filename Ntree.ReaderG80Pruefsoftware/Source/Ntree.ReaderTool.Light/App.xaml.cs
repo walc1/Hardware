@@ -1,7 +1,7 @@
 ﻿using System.Windows;
-using TestServer.ViewModels;
 
-namespace TestServer
+
+namespace Ntree.ReaderTool.Light
 {
     /// <summary>
     /// Interaction logic for App.xaml

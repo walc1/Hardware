@@ -1,11 +1,11 @@
-﻿<Window x:Class="TestServer.Views.ConnectionView"
+﻿<Window x:Class="Ntree.ReaderTool.Light.Views.ConnectionView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TestServer.Views"
-             xmlns:viewModels="clr-namespace:TestServer.ViewModels"
-        xmlns:connection="clr-namespace:TestServer.Connection"
+             xmlns:local="clr-namespace:Ntree.ReaderTool.Light.Views"
+             xmlns:viewModels="clr-namespace:Ntree.ReaderTool.Light"
+        xmlns:connection="clr-namespace:Ntree.ReaderTool.Light.Connection"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewModels:ConnectionViewModel}"
              Height="250" Width="350" WindowStyle="ToolWindow">
@@ -30,7 +30,7 @@
             </GroupBox>
         </DataTemplate>
         <DataTemplate DataType="{x:Type connection:UdpConnection}">
-            <GroupBox Header="Serial Connection">
+            <GroupBox Header="Network Connection">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -61,8 +61,8 @@
         </StackPanel>
         <ContentControl Grid.Row="1" Content="{Binding Connection}" />
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="Connect">Connect</Button>
-            <Button x:Name="Cancel">Cancel</Button>
+            <Button x:Name="Connect" Width="60">Connect</Button>
+            <Button x:Name="Cancel" Width="60">Cancel</Button>
         </StackPanel>
     </Grid>
 </Window>

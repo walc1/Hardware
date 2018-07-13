@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:TestServer"
+                    xmlns:local="clr-namespace:Ntree.ReaderTool.Light"
                     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit">
     
     <Style TargetType="{x:Type xctk:ColorPicker}">

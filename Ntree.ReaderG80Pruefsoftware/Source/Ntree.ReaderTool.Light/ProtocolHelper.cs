@@ -7,7 +7,7 @@ using Caliburn.Micro;
 using Server;
 using Shared;
 
-namespace TestServer
+namespace Ntree.ReaderTool.Light
 {
     public class ProtocolHelper
     {

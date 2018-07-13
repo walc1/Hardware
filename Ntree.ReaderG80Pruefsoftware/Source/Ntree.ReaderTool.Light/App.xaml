@@ -1,8 +1,8 @@
-﻿<Application x:Class="TestServer.App"
+﻿<Application x:Class="Ntree.ReaderTool.Light.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:testServer="clr-namespace:TestServer"
-             xmlns:converter="clr-namespace:TestServer.Converter">
+             xmlns:testServer="clr-namespace:Ntree.ReaderTool.Light"
+             xmlns:converter="clr-namespace:Ntree.ReaderTool.Light.Converter">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

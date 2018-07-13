@@ -1,7 +1,7 @@
 using System.Windows.Media;
 using Shared;
 
-namespace TestServer
+namespace Ntree.ReaderTool.Light
 {
     public class ColorHelper
     {

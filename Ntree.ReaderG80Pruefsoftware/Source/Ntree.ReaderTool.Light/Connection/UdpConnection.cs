@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using Shared;
 
-namespace TestServer.Connection
+namespace Ntree.ReaderTool.Light.Connection
 {
     public class UdpConnection : IConnection
     {

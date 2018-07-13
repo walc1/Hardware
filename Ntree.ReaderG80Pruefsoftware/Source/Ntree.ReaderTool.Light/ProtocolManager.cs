@@ -1,11 +1,11 @@
-﻿using Shared;
+﻿using Ntree.ReaderTool.Light.ViewModels;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TestServer.ViewModels;
 
-namespace TestServer
+namespace Ntree.ReaderTool.Light
 {
     public class ProtocolManager
     {

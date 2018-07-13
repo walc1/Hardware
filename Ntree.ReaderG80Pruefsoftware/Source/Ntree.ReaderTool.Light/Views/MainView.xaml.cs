@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TestServer.Views
+namespace Ntree.ReaderTool.Light.Views
 {
     /// <summary>
     /// Interaction logic for MainView.xaml

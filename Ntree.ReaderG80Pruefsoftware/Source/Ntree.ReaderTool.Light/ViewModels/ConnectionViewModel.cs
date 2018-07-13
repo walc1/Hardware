@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Caliburn.Micro;
+using Ntree.ReaderTool.Light.Connection;
 using Ntree.ReaderTool.Light.Properties;
 using Shared;
-using TestServer.Connection;
 
-namespace TestServer.ViewModels
+namespace Ntree.ReaderTool.Light.ViewModels
 {
     class ConnectionViewModel : Screen
     {

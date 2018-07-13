@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TestServer
+namespace Ntree.ReaderTool.Light
 {
     public class Xtea
     {
